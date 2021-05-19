@@ -11,6 +11,10 @@ namespace ExcelApp
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(args);
+
+            //https://makolyte.com/csharp-parsing-commands-and-arguments-in-a-console-app/
+
         }
     }
 }
