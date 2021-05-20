@@ -7,7 +7,7 @@ namespace ExcelApp
     {
         static void Main(string[] args)
         {
-            object sigID = "{4157e14126de03994c7e41c6d36d8ea7}";
+            object sigID = "{7973591c-a24c-5814-1954-1dd7667f7ddc}";
 
             var excelApp = new Application();
             excelApp.Visible = true;
