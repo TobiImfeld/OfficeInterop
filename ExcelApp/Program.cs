@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,12 +10,12 @@ namespace ExcelApp
 {
     class Program
     {
+        
+
         static void Main(string[] args)
         {
-            Console.WriteLine(args);
-
-            //https://makolyte.com/csharp-parsing-commands-and-arguments-in-a-console-app/
-
+            //Parser.Default.ParseArguments<PushCommand, CommitCommand>(args)
+            //    .WithParsed<ICommand>(t => t.Execute());
         }
     }
 }
