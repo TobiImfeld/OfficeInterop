@@ -9,33 +9,42 @@ namespace ExcelApp
     {
         static void Main(string[] args)
         {
-            object sigID = "{7973591c-a24c-5814-1954-1dd7667f7ddc}";
-
-            var excelApp = new Application();
-            excelApp.Visible = true;
-
-            // Get the certifcate to use to encrypt the key.
-            X509Certificate2 cert = GetCertificateFromStore("CN=TobiOfficeCert");
-            if (cert == null)
+            try
             {
-                Console.WriteLine("Certificate ' CN=TobiOfficeCert' not found.");
-                //Console.ReadLine();
+                // Get the certifcate to use to encrypt the key.
+                X509Certificate2 cert = GetCertificateFromStore("CN=TobiOfficeCert");
+                if (cert == null)
+                {
+                    Console.WriteLine("Certificate ' CN=TobiOfficeCert' not found.");
+                    //Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("Certificate ' CN=TobiOfficeCert' found.");
+                    //Console.ReadLine();
+                }
+
+                var excelApp = new Application();
+                excelApp.Visible = true;
+
+                var excelFile = excelApp.Workbooks.Open("C:\\Temp\\Test1.xlsx");
+
+                var signatureSet = excelFile.Signatures;
+                Signature objSignature = signatureSet.AddNonVisibleSignature(cert);
+                var signed = objSignature.IsSigned;
+                Console.WriteLine($"Is file signed: {signed}");
+
+                //excelFile.SaveAs("C:\\Temp\\Test1.xlsx");
+                excelFile.Save();
+                excelFile.Close();
+                excelApp.Quit();
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Certificate ' CN=TobiOfficeCert' found.");
-                //Console.ReadLine();
+                Console.WriteLine(ex);
+                Console.ReadLine();
             }
 
-            Workbook excelFile = excelApp.Workbooks.Open("C:\\Temp\\Test1.xlsx");
-            
-            var signatureSet = excelFile.Signatures;
-            Signature objSignature = signatureSet.AddNonVisibleSignature(cert);
-            var signed = objSignature.IsSigned;
-            Console.WriteLine($"Is file signed: {signed}");
-
-            excelFile.SaveAs("C:\\Temp\\Test1.xlsx");
-            excelFile.Close();
 
 
             //oWord.Activate();
