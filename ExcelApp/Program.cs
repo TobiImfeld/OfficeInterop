@@ -25,6 +25,7 @@ namespace ExcelApp
                 }
 
                 var excelApp = new Application();
+                excelApp.DisplayAlerts = false;
                 excelApp.Visible = true;
 
                 var excelFile = excelApp.Workbooks.Open("C:\\Temp\\Test1.xlsx");
