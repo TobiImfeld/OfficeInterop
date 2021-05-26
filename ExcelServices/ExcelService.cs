@@ -31,12 +31,12 @@ namespace ExcelServices
                 {
                     this.excelApp = new Application();
                     this.books = this.excelApp.Workbooks;
-                    book = this.books.Open(filePath);
+                    this.book = this.books.Open(filePath);
 
                     this.excelApp.DisplayAlerts = false;
                     this.excelApp.Visible = false;
 
-                    var signatureSet = book.Signatures;
+                    var signatureSet = this.book.Signatures;
                     Signature signature = signatureSet.AddNonVisibleSignature(cert);
                     signatureSet.ShowSignaturesPane = false;
 
@@ -50,17 +50,17 @@ namespace ExcelServices
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
-                    this.disposeComObjects();
+                    this.DisposeComObjects();
                     Console.ReadLine();
                 }
                 finally
                 {
-                    this.disposeComObjects();
+                    this.DisposeComObjects();
                 }
             }
         }
 
-        private void disposeComObjects()
+        private void DisposeComObjects()
         {
             if (book != null) Marshal.ReleaseComObject(book);
             if (books != null) Marshal.ReleaseComObject(books);
