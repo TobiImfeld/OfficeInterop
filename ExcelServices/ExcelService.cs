@@ -2,7 +2,6 @@
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 
 namespace ExcelServices
 {
@@ -18,7 +17,7 @@ namespace ExcelServices
             this.certificateStoreService = certificateStoreService;
         }
 
-        public void AddDigitalSignature(string certName)
+        public void AddDigitalSignature(string filePath, string certName)
         {
             var cert = this.certificateStoreService.GetCertificateFromStore(certName);
 
@@ -30,29 +29,23 @@ namespace ExcelServices
             {
                 try
                 {
-                    excelApp = new Application();
-                    books = excelApp.Workbooks;
-                    book = books.Open("C:\\Temp\\Test1.xlsx");
+                    this.excelApp = new Application();
+                    this.books = this.excelApp.Workbooks;
+                    book = this.books.Open(filePath);
 
-                    excelApp.DisplayAlerts = false;
-                    excelApp.Visible = true;
+                    this.excelApp.DisplayAlerts = false;
+                    this.excelApp.Visible = false;
 
                     var signatureSet = book.Signatures;
-                    Signature objSignature = signatureSet.AddNonVisibleSignature(cert);
-                    //var signed = objSignature.IsSigned;
-                    //Console.WriteLine($"Is file signed: {signed}");
+                    Signature signature = signatureSet.AddNonVisibleSignature(cert);
+                    signatureSet.ShowSignaturesPane = false;
 
-                    //excelFile.SaveAs("C:\\Temp\\Test1.xlsx");
+                    var signed = signature.IsSigned;
+                    Console.WriteLine($"Is {filePath} signed: {signed}");
 
-                    //Vermutung: Wahrscheinlich muss die Signierung zuerst komplett abgearbeitet sein, Signierungsfenster geschlossen, keine Zugriffe mehr auf File.
-                    //ûnd erst dann kann das Excel gespeichert werden.
-                    //excelFile.Save();
-                    //excelFile.SaveCopyAs("C:\\Temp\\Test1.xlsx");
-                    //book.SaveAs(@"C:\Temp\Test1_" + DateTime.Now.Millisecond + ".xlsx"); //Zeile hier verhindert Save-Error, aber signaturen werden ungültig durch bearbeitung!
-                    //book.SaveCopyAs("C:\\Temp\\Test1.xlsx");
-                    book.Save();
-                    book.Close();
-                    excelApp.Quit();
+                    this.book.Close();
+                    this.books.Close();
+                    this.excelApp.Quit();
                 }
                 catch (Exception ex)
                 {

@@ -2,6 +2,6 @@
 {
     public interface IExcelService
     {
-        void AddDigitalSignature(string certName);
+        void AddDigitalSignature(string filePath, string certName);
     }
 }

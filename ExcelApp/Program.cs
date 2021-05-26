@@ -8,7 +8,7 @@ namespace ExcelApp
         {
             ICertificateStoreService certificateStoreService = new CertificateStoreService();
             IExcelService excelService = new ExcelService(certificateStoreService);
-            excelService.AddDigitalSignature("TobiOfficeCert");
+            excelService.AddDigitalSignature(@"C:\Temp\Test1.xlsx","TobiOfficeCert");
         }
     }
 }
