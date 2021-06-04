@@ -37,11 +37,14 @@ namespace ExcelServices
                     this.excelApp.Visible = false;
 
                     var signatureSet = this.book.Signatures;
+
                     Signature signature = signatureSet.AddNonVisibleSignature(cert);
                     signatureSet.ShowSignaturesPane = false;
-
                     var signed = signature.IsSigned;
                     Console.WriteLine($"Is {filePath} signed: {signed}");
+                    Console.WriteLine($"Signature issuer: {signature.Issuer}");
+
+                    Console.ReadLine();
 
                     this.book.Close();
                     this.books.Close();
