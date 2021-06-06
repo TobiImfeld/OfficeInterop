@@ -1,25 +1,30 @@
-﻿using System;
+﻿using System.Configuration;
 using ExcelServices;
 using CommandLine;
+using Logging;
 
 namespace ExcelApp
 {
-    class Program
+    public class Program
     {
-        
+        private static readonly ILoggerFactory loggerFactory = new LoggerFactory();
 
         static void Main(string[] args)
         {
             var logFile = ConfigurationManager.AppSettings["LogFilePath"];
+            LoggerComponent.InitLogger(logFile);
 
-            ICertificateStoreService certificateStoreService = new CertificateStoreService();
-            IExcelService excelService = new ExcelService(certificateStoreService);
-            excelService.AddDigitalSignature(@"C:\Temp\Test1.xlsx","TobiOfficeCert");
+            ILogger logger = loggerFactory.Create<Program>();
 
+            logger.Info("Start ExcelApp");
 
+            ICertificateStoreService certificateStoreService = new CertificateStoreService(loggerFactory);
+            IExcelService excelService = new ExcelService(loggerFactory, certificateStoreService);
+            excelService.SetPathToFiles(@"C:\Temp\");
+            excelService.AddDigitalSignature("TobiOfficeCert");
 
-            //Parser.Default.ParseArguments<PushCommand, CommitCommand>(args)
-            //    .WithParsed<ICommand>(t => t.Execute());
+            logger.Info("Stop ExcelApp");
+            LoggerComponent.Close();
         }
     }
 }
