@@ -7,7 +7,9 @@ namespace ExcelApp
     {
         static void Main(string[] args)
         {
-            var main = MainInitializer.Init();
+            var main = MainInitializer
+                .Init()
+                .AddLogging();
 
             var logger = main.GetLoggerFactory().Create<Program>();
 
@@ -17,7 +19,7 @@ namespace ExcelApp
             main.GetExcelService().AddDigitalSignature("TobiOfficeCert");
 
             logger.Info("Stop ExcelApp");
-            LoggerComponent.Close();
+            main.CloseLogging();
         }
     }
 }

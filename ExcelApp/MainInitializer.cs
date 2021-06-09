@@ -21,6 +21,13 @@ namespace ExcelApp
             return mainInitalizier;
         }
 
+        public MainInitializer AddLogging()
+        {
+            var logFile = ConfigurationManager.AppSettings["LogFilePath"];
+            LoggerComponent.InitLogger(logFile);
+            return this;
+        }
+
         public ILoggerFactory GetLoggerFactory()
         {
             return this.loggerFactory;
@@ -36,11 +43,14 @@ namespace ExcelApp
             return this.excelService;
         }
 
+        public void CloseLogging()
+        {
+            LoggerComponent.Close();
+        }
+
         private void InitServices()
         {
-            var logFile = ConfigurationManager.AppSettings["LogFilePath"];
-            LoggerComponent.InitLogger(logFile);
-
+            
             var serviceProvider = new ServiceCollection()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddTransient<ICertificateStoreService, CertificateStoreService>()
