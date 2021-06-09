@@ -1,7 +1,4 @@
-﻿using CommandLine;
-using Logging;
-
-namespace ExcelApp
+﻿namespace ExcelApp
 {
     public class Program
     {
