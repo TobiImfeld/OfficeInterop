@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelApp", "ExcelApp\ExcelA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelServices", "ExcelServices\ExcelServices.csproj", "{B8D90AD2-5DF5-457E-9389-B36B45D25C26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLine", "CommandLine\CommandLine.csproj", "{7DA3A20D-6A81-40E4-ADDD-ABD21A76D180}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLineParser", "CommandLine\CommandLineParser.csproj", "{7DA3A20D-6A81-40E4-ADDD-ABD21A76D180}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.csproj", "{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}"
 EndProject

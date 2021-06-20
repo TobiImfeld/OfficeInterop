@@ -70,9 +70,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CommandLine\CommandLine.csproj">
-      <Project>{7DA3A20D-6A81-40E4-ADDD-ABD21A76D180}</Project>
-      <Name>CommandLine</Name>
+    <ProjectReference Include="..\CommandLine\CommandLineParser.csproj">
+      <Project>{7da3a20d-6a81-40e4-addd-abd21a76d180}</Project>
+      <Name>CommandLineParser</Name>
     </ProjectReference>
     <ProjectReference Include="..\Logging\Logging.csproj">
       <Project>{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}</Project>

@@ -1,4 +1,6 @@
-﻿namespace ExcelApp
+﻿using System;
+
+namespace ExcelApp
 {
     public class Program
     {
@@ -12,8 +14,14 @@
 
             logger.Info("Start ExcelApp");
 
-            main.GetExcelService().SetPathToFiles(@"C:\Temp\");
-            main.GetExcelService().AddDigitalSignature("TobiOfficeCert");
+            //main.GetExcelService().SetPathToFiles(@"C:\Temp\");
+            //main.GetExcelService().AddDigitalSignature("TobiOfficeCert");
+
+            var parser = main.GetParserService();
+
+            var args1 = Console.ReadLine();
+            parser.ParseInput(args);
+
 
             logger.Info("Stop ExcelApp");
             main.CloseLogging();

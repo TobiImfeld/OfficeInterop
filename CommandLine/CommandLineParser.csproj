@@ -7,8 +7,8 @@
     <ProjectGuid>{7DA3A20D-6A81-40E4-ADDD-ABD21A76D180}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CommandLine</RootNamespace>
-    <AssemblyName>CommandLine</AssemblyName>
+    <RootNamespace>CommandLineParser</RootNamespace>
+    <AssemblyName>CommandLineParser</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -45,14 +45,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CmdParser\Commands.cs" />
-    <Compile Include="CmdParser\ICommand.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="IParserService.cs" />
+    <Compile Include="ParserService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelServices\ExcelServices.csproj">
+      <Project>{B8D90AD2-5DF5-457E-9389-B36B45D25C26}</Project>
+      <Name>ExcelServices</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

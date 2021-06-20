@@ -1,4 +1,5 @@
-﻿using ExcelServices;
+﻿using CommandLineParser;
+using ExcelServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
@@ -10,6 +11,7 @@ namespace ExcelApp
         private ILoggerFactory loggerFactory;
         private ICertificateStoreService certificateStoreService;
         private IExcelService excelService;
+        private IParserService parserService;
 
         private MainInitializer() { }
 
@@ -33,14 +35,14 @@ namespace ExcelApp
             return this.loggerFactory;
         }
 
-        public ICertificateStoreService GetCertificateService()
-        {
-            return this.certificateStoreService;
-        }
-
         public IExcelService GetExcelService()
         {
             return this.excelService;
+        }
+
+        public IParserService GetParserService()
+        {
+            return this.parserService;
         }
 
         public void CloseLogging()
@@ -50,16 +52,18 @@ namespace ExcelApp
 
         private void InitServices()
         {
-            
+
             var serviceProvider = new ServiceCollection()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddTransient<ICertificateStoreService, CertificateStoreService>()
                 .AddTransient<IExcelService, ExcelService>()
+                .AddTransient<IParserService, ParserService>()
                 .BuildServiceProvider();
 
             this.loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             this.certificateStoreService = serviceProvider.GetService<ICertificateStoreService>();
             this.excelService = serviceProvider.GetService<IExcelService>();
+            this.parserService = serviceProvider.GetService<IParserService>();
         }
     }
 }
