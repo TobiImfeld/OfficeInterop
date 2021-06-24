@@ -60,6 +60,10 @@
       <Project>{B8D90AD2-5DF5-457E-9389-B36B45D25C26}</Project>
       <Name>ExcelServices</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

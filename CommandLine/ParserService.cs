@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using ExcelServices;
+using Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,22 +9,25 @@ namespace CommandLineParser
 {
     public class ParserService : IParserService
     {
+        private readonly ILogger logger;
         private readonly IExcelService excelService;
         private readonly Parser parser;
 
-        public ParserService(IExcelService excelService)
+        public ParserService(ILoggerFactory loggerFactory, IExcelService excelService)
         {
+            this.logger = loggerFactory.Create<ParserService>(); ;
             this.excelService = excelService;
             parser = new Parser();
         }
 
-        public void ParseInput(string[] args)
+        public int ParseInput(string[] args)
         {
-            this.parser.ParseArguments<PathOptions, CertificateNameOptions>(args)
+           return this.parser.ParseArguments<PathOptions, CertificateNameOptions, StopOptions>(args)
                 .MapResult(
                 (PathOptions opts) => this.SetPathToFiles(opts),
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
-                errs => 1
+                (StopOptions opts) => this.StopApp(opts),
+                errs => this.HandleParseError(errs)
                 );
         }
 
@@ -32,15 +36,15 @@ namespace CommandLineParser
             var exitCode = 0;
 
             var path = options.PathToFiles;
-            if (path.Equals(null))
+            if (path != null)
             {
-                exitCode = -1;
-                return exitCode;
+                this.logger.Debug($"path= {path}");
+                this.excelService.SetPathToFiles(options.PathToFiles);
             }
             else
             {
-                this.excelService.SetPathToFiles(options.PathToFiles);
-                Console.WriteLine($"path= {path}");
+                exitCode = -1;
+                return exitCode;
             }
             
             return exitCode;
@@ -51,18 +55,25 @@ namespace CommandLineParser
             var exitCode = 0;
 
             var certName = options.CertName;
-            if (certName.Equals(null))
+            if (certName != null)
+            {
+                this.logger.Debug($"certificate name= {certName}");
+                this.excelService.AddDigitalSignature(certName);
+            }
+            else
             {
                 exitCode = -1;
                 return exitCode;
             }
-            else
-            {
-                this.excelService.AddDigitalSignature(certName);
-                Console.WriteLine($"certificate name= {certName}");
-            }
 
             return exitCode;
+        }
+
+        private int StopApp(StopOptions opts)
+        {
+            var value = opts.Stop;
+            this.logger.Debug($"stop= {value}");
+            return value;
         }
 
         private int HandleParseError(IEnumerable<Error> errs)

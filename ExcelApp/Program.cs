@@ -14,14 +14,20 @@ namespace ExcelApp
 
             logger.Info("Start ExcelApp");
 
-            //main.GetExcelService().SetPathToFiles(@"C:\Temp\");
-            //main.GetExcelService().AddDigitalSignature("TobiOfficeCert");
+            Console.WriteLine("Excel signing app run..");
 
             var parser = main.GetParserService();
+            var run = true;
 
-            var args1 = Console.ReadLine();
-            parser.ParseInput(args);
-
+            while (run)
+            {
+                var input = Console.ReadLine();
+                var exitCode = parser.ParseInput(input.Split());
+                if(exitCode == 1)
+                {
+                    run = false;
+                }
+            }
 
             logger.Info("Stop ExcelApp");
             main.CloseLogging();

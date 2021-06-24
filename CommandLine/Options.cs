@@ -1,19 +1,28 @@
 ﻿using CommandLine;
-using System;
 
 namespace CommandLineParser
 {
+    //example command: "path -p C:\\TEMP"
     [Verb("path", HelpText = "Set path to files")]
     public class PathOptions
     {
-        [Option('p', "pathToFiles", Required = true)]
+        [Option('p', "PathToFiles", Required = false)]
         public string PathToFiles { get; set; }
     }
 
-    [Verb("certName", HelpText = "Set certificate name")]
+    //example command: "cert -c CertificateName"
+    [Verb("cert", HelpText = "Set certificate name")]
     public class CertificateNameOptions
     {
-        [Option('c', "certName", Required = true)]
+        [Option('c', "CertName", Required = false)]
         public string CertName { get; set; }
+    }
+
+    //example command: "stop -s 1"
+    [Verb("stop", HelpText = "Stops the app")]
+    public class StopOptions
+    {
+        [Option('s', "Stop", Required = false)]
+        public int Stop { get; set; }
     }
 }
