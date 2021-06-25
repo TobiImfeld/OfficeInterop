@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logging;
+using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace ExcelServices
@@ -7,10 +8,17 @@ namespace ExcelServices
     {
         private X509Store store;
         private X509Certificate2 signingCert;
+        private readonly ILogger logger;
+
+        public CertificateStoreService(ILoggerFactory loggerFactory)
+        {
+            this.logger = loggerFactory.Create<CertificateStoreService>();
+        }
 
         public X509Certificate2 GetCertificateFromStore(string certName)
         {
-            store = new X509Store(StoreLocation.CurrentUser);
+            this.store = new X509Store(StoreLocation.CurrentUser);
+            this.logger.Info($"Open certificate store for: {StoreLocation.CurrentUser.ToString()}");
 
             try
             {
@@ -22,21 +30,24 @@ namespace ExcelServices
 
                 if (signingCerts.Count == 0)
                 {
+                    this.logger.Error($"{certName} not found! Certificates list has: {signingCerts.Count} inserts");
                     return null;
                 }
                 else
                 {
                     signingCert = signingCerts[0];
+                    this.logger.Debug($"Found certificate: {signingCert}");
                     return signingCert;
                 }    
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"GetCertificateFromStore(): {certName} not found! Exception: {ex}");
+                this.logger.Error(ex);
                 return null;
             }
             finally
             {
+                this.logger.Debug($"Close certificate store");
                 store.Close();
             }
         }
