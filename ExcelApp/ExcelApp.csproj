@@ -146,6 +146,12 @@
 	  <MergeAssemblies Include="$(OutputPath)CommandLineParser.dll" />
 	  <MergeAssemblies Include="$(OutputPath)ExcelServices.dll" />
 	  <MergeAssemblies Include="$(OutputPath)Logging.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.dll" />
+	  <MergeAssemblies Include="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" />
+	  <MergeAssemblies Include="$(OutputPath)System.Threading.Tasks.Extensions.dll" />
+	  <MergeAssemblies Include="$(OutputPath)Serilog.dll" />
+	  <MergeAssemblies Include="$(OutputPath)Serilog.Sinks.File.dll" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputFullPath)$(MSBuildProjectName).Standalone.exe</OutputAssembly>
