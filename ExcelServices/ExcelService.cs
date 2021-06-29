@@ -56,11 +56,20 @@ namespace ExcelServices
                         var signatureSet = this.book.Signatures;
 
                         Signature signature = signatureSet.AddNonVisibleSignature(cert);
-                        signatureSet.ShowSignaturesPane = false;
-                        var signed = signature.IsSigned;
+                        if (signature != null)
+                        {
+                            signatureSet.ShowSignaturesPane = false;
+                            var signed = signature.IsSigned;
 
-                        this.logger.Debug($"Is file {Path.GetFileName(file)} signed: {signed}");
-                        this.logger.Debug($"Signature issuer: {signature.Issuer}");
+                            this.logger.Debug($"Is file {Path.GetFileName(file)} signed: {signed}");
+                            this.logger.Debug($"Signature issuer: {signature.Issuer}");
+                            Console.WriteLine($"Is file {Path.GetFileName(file)} signed: {signed}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Error: Could not set signature on file: {Path.GetFileName(file)}");
+                            this.logger.Error($"Could not set signature on file: {Path.GetFileName(file)}");
+                        }
 
                         this.book.Close();
                         this.books.Close();
