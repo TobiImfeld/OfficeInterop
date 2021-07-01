@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 
 namespace ExcelApp
 {
@@ -6,15 +7,19 @@ namespace ExcelApp
     {
         static void Main(string[] args)
         {
+            var path = ConfigurationManager.AppSettings["LogFilePath"];
+            var version = ConfigurationManager.AppSettings["Version"];
+            Console.WriteLine($"Excel Signing App v{version}");
+
             var main = MainInitializer
                 .Init()
-                .AddLogging();
+                .AddLogging(path);
 
             var logger = main.GetLoggerFactory().Create<Program>();
 
             logger.Info("Start ExcelApp");
 
-            Console.WriteLine("Excel signing app run..");
+            Console.WriteLine("Enter file path:");
 
             var parser = main.GetParserService();
             var run = true;

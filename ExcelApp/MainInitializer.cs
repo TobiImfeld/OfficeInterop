@@ -2,7 +2,6 @@
 using ExcelServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
 
 namespace ExcelApp
 {
@@ -23,10 +22,9 @@ namespace ExcelApp
             return mainInitalizier;
         }
 
-        public MainInitializer AddLogging()
+        public MainInitializer AddLogging(string logFilePath)
         {
-            var logFile = ConfigurationManager.AppSettings["LogFilePath"];
-            LoggerComponent.InitLogger(logFile);
+            LoggerComponent.InitLogger(logFilePath);
             return this;
         }
 
