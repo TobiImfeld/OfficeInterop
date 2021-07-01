@@ -46,36 +46,50 @@ namespace ExcelServices
                 {
                     foreach(var file in fileList)
                     {
-                        this.excelApp = new Application();
-                        this.books = this.excelApp.Workbooks;
-                        this.book = this.books.Open(file);
-
-                        this.excelApp.DisplayAlerts = false;
-                        this.excelApp.Visible = false;
-
-                        var signatureSet = this.book.Signatures;
-
-                        Signature signature = signatureSet.AddNonVisibleSignature(cert);
-                        if (signature != null)
+                        try
                         {
-                            signatureSet.ShowSignaturesPane = false;
-                            var signed = signature.IsSigned;
+                            this.excelApp = new Application();
+                            this.books = this.excelApp.Workbooks;
+                            this.book = this.books.Open(file);
 
-                            this.logger.Debug($"Is file {Path.GetFileName(file)} signed: {signed}");
-                            this.logger.Debug($"Signature issuer: {signature.Issuer}");
-                            Console.WriteLine($"Is file {Path.GetFileName(file)} signed: {signed}");
+                            this.excelApp.DisplayAlerts = false;
+                            this.excelApp.Visible = false;
+
+                            var signatureSet = this.book.Signatures;
+
+                            Signature signature = signatureSet.AddNonVisibleSignature(cert);
+                            if (signature != null)
+                            {
+                                signatureSet.ShowSignaturesPane = false;
+                                var signed = signature.IsSigned;
+
+                                this.logger.Debug($"Is file {Path.GetFileName(file)} signed: {signed}");
+                                this.logger.Debug($"Signature issuer: {signature.Issuer}");
+                                Console.WriteLine($"Is file {Path.GetFileName(file)} signed: {signed}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Error: Could not set signature on file: {Path.GetFileName(file)}");
+                                this.logger.Error($"Could not set signature on file: {Path.GetFileName(file)}");
+                            }
+
+                            this.book.Close();
+                            this.books.Close();
+                            this.excelApp.Quit();
+                            this.DisposeComObjects();
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            Console.WriteLine($"Error: Could not set signature on file: {Path.GetFileName(file)}");
-                            this.logger.Error($"Could not set signature on file: {Path.GetFileName(file)}");
+                            this.logger.Error(ex);
+                            this.DisposeComObjects();
                         }
-
-                        this.book.Close();
-                        this.books.Close();
-                        this.excelApp.Quit();
-                        this.DisposeComObjects();
+                        finally
+                        {
+                            this.DisposeComObjects();
+                        }
                     }
+
+                    Console.WriteLine($"Work done, all found files signed!");
                 }
                 catch (Exception ex)
                 {
