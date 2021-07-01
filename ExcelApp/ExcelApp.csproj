@@ -47,7 +47,6 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-	<OutputPathPublish>bin\Release\Publish\</OutputPathPublish>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -168,9 +167,8 @@
     </ItemGroup>
     <Message Text="Cleanup -&gt; @(FilesToDelete, ', ')" Importance="High" />
     <Delete Files="@(FilesToDelete)" />
-	<Copy SourceFiles="$(OutputAssembly)" DestinationFiles="$(OutputPathPublish)\$(MSBuildProjectName).exe" />
+	<Copy SourceFiles="$(OutputAssembly)" DestinationFiles="$(OutputPath)\$(MSBuildProjectName).exe" />
     <Delete Files="$(OutputAssembly)" />
-	<Delete Files="$(OutputPath)\$(MSBuildProjectName).exe.config" />
   </Target>
 
 </Project>
