@@ -19,7 +19,7 @@ namespace ExcelApp
 
             logger.Info("Start ExcelApp");
 
-            Console.WriteLine("Enter file path:");
+            Console.WriteLine("Enter command");
 
             var parser = main.GetParserService();
             var run = true;
