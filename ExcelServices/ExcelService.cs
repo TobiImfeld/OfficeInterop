@@ -44,7 +44,7 @@ namespace ExcelServices
             {
                 try
                 {
-                    foreach(var file in fileList)
+                    foreach(var file in this.fileList)
                     {
                         try
                         {
@@ -100,6 +100,63 @@ namespace ExcelServices
                 {
                     this.DisposeComObjects();
                 }
+            }
+        }
+
+        public void DeleteAllDigitalSignatures(string filePath)
+        {
+            var fileList = this.ListAllExcelFilesFrom(filePath);
+
+            try
+            {
+                foreach (var file in fileList)
+                {
+                    try
+                    {
+                        this.excelApp = new Application();
+                        this.books = this.excelApp.Workbooks;
+                        this.book = this.books.Open(file);
+
+                        this.excelApp.DisplayAlerts = false;
+                        this.excelApp.Visible = false;
+
+                        var signatureSet = this.book.Signatures;
+                        var enumerator = signatureSet.GetEnumerator();
+
+                        while (enumerator.MoveNext())
+                        {
+                            Signature signature = enumerator.Current as Signature;
+                            Console.WriteLine($"Delete Signature: {signature.Details.SignatureText} from file: {file}");
+                            this.logger.Debug($"Delete Signature: {signature.Details.SignatureText} from file: {file}");
+                            signature.Delete();
+                        }
+
+                        this.book.Close();
+                        this.books.Close();
+                        this.excelApp.Quit();
+                        this.DisposeComObjects();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.logger.Error(ex);
+                        this.DisposeComObjects();
+                    }
+                    finally
+                    {
+                        this.DisposeComObjects();
+                    }
+                }
+
+                Console.WriteLine($"Work done, all signatures deleted!");
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error(ex);
+                this.DisposeComObjects();
+            }
+            finally
+            {
+                this.DisposeComObjects();
             }
         }
 

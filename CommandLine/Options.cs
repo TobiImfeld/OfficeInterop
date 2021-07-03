@@ -2,7 +2,7 @@
 
 namespace CommandLineParser
 {
-    //example command: "path -p C:\\TEMP"
+    //example command: "path -p C:\Temp"
     [Verb("path", HelpText = "Set path to files")]
     public class PathOptions
     {
@@ -24,5 +24,13 @@ namespace CommandLineParser
     {
         [Option('s', "Stop", Required = false)]
         public int Stop { get; set; }
+    }
+
+    //example command: "delSig -p C:\Temp "
+    [Verb("delSig", HelpText = "Delete all certificates from path")]
+    public class DeleteSignatureOptions
+    {
+        [Option('p', "PathToFiles", Required = false)]
+        public string PathToFiles { get; set; }
     }
 }
