@@ -26,7 +26,7 @@ namespace CommandLineParser
                 .MapResult(
                 (PathOptions opts) => this.SetPathToFiles(opts),
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
-                (DeleteSignatureOptions opts) => this.DeleteSignature(opts),
+                (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
                 (StopOptions opts) => this.StopApp(opts),
                 errs => this.HandleParseError(errs)
                 );
@@ -77,15 +77,15 @@ namespace CommandLineParser
             return value;
         }
 
-        private int DeleteSignature(DeleteSignatureOptions options)
+        private int DeleteAllDigitalSignatures(DeleteSignatureOptions options)
         {
             var exitCode = 0;
 
             var path = options.PathToFiles;
             if (path != null)
             {
-                this.logger.Debug($"Delete signature path= {path}");
-                this.excelService.DeleteDigitalSignature(options.PathToFiles);
+                this.logger.Debug($"Delete file signature, path= {path}");
+                this.excelService.DeleteAllDigitalSignatures(options.PathToFiles);
             }
             else
             {

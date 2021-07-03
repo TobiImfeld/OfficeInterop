@@ -4,6 +4,6 @@
     {
         void AddDigitalSignature(string certName);
         void SetPathToFiles(string filePath);
-        void DeleteDigitalSignature(string filePath);
+        void DeleteAllDigitalSignatures(string filePath);
     }
 }

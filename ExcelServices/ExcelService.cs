@@ -103,7 +103,7 @@ namespace ExcelServices
             }
         }
 
-        public void DeleteDigitalSignature(string filePath)
+        public void DeleteAllDigitalSignatures(string filePath)
         {
             var fileList = this.ListAllExcelFilesFrom(filePath);
 
@@ -121,13 +121,14 @@ namespace ExcelServices
                         this.excelApp.Visible = false;
 
                         var signatureSet = this.book.Signatures;
-
                         var enumerator = signatureSet.GetEnumerator();
 
                         while (enumerator.MoveNext())
                         {
-                            Signature item = enumerator.Current as Signature;
-                            Console.WriteLine($"Signature Details: {item.Details.SignatureText}");
+                            Signature signature = enumerator.Current as Signature;
+                            Console.WriteLine($"Delete Signature: {signature.Details.SignatureText} from file: {file}");
+                            this.logger.Debug($"Delete Signature: {signature.Details.SignatureText} from file: {file}");
+                            signature.Delete();
                         }
 
                         this.book.Close();

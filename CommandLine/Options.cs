@@ -26,8 +26,8 @@ namespace CommandLineParser
         public int Stop { get; set; }
     }
 
-    //example command: "deleteSig -p C:\Temp "
-    [Verb("deleteSig", HelpText = "Delete all certificates from path")]
+    //example command: "delSig -p C:\Temp "
+    [Verb("delSig", HelpText = "Delete all certificates from path")]
     public class DeleteSignatureOptions
     {
         [Option('p', "PathToFiles", Required = false)]
