@@ -13,6 +13,7 @@ namespace ExcelServices
     {
         private readonly ILogger logger;
         private readonly ICertificateStoreService certificateStoreService;
+        private readonly IFileService fileService;
         private Application excelApp = null;
         private Workbooks books = null;
         private Workbook book = null;
@@ -20,16 +21,19 @@ namespace ExcelServices
         private HashSet<string> fileExtensions = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase){ ".xls", ".xlsx", ".xlsm" };
 
-        public ExcelService(ILoggerFactory loggerFactory, ICertificateStoreService certificateStoreService)
+        public ExcelService(ILoggerFactory loggerFactory, ICertificateStoreService certificateStoreService, IFileService fileService)
         {
             this.logger = loggerFactory.Create<ExcelService>();
             this.certificateStoreService = certificateStoreService;
+            this.fileService = fileService;
         }
 
         public void SetPathToFiles(string filePath)
         {
             this.CountFiles(filePath);
             this.fileList = this.ListAllExcelFilesFrom(filePath);
+
+            this.fileService.ListAllExcelFilesFromDirectory(filePath);
         }
 
         public void AddDigitalSignature(string certName)
@@ -160,7 +164,7 @@ namespace ExcelServices
             }
         }
 
-        private int CountFiles(string filePath)
+        private void CountFiles(string filePath)
         {
             var count = Directory
                 .EnumerateFiles(filePath)
@@ -169,8 +173,6 @@ namespace ExcelServices
 
             this.logger.Debug($"Found {count} files in {filePath}");
             Console.WriteLine($"Found {count} files in {filePath}");
-
-            return count;
         }
 
         private List<string> ListAllExcelFilesFrom(string filePath)
