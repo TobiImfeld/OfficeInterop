@@ -4,7 +4,6 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ExcelServices
@@ -13,6 +12,7 @@ namespace ExcelServices
     {
         private readonly ILogger logger;
         private readonly ICertificateStoreService certificateStoreService;
+        private readonly IFileService fileService;
         private Application excelApp = null;
         private Workbooks books = null;
         private Workbook book = null;
@@ -20,16 +20,16 @@ namespace ExcelServices
         private HashSet<string> fileExtensions = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase){ ".xls", ".xlsx", ".xlsm" };
 
-        public ExcelService(ILoggerFactory loggerFactory, ICertificateStoreService certificateStoreService)
+        public ExcelService(ILoggerFactory loggerFactory, ICertificateStoreService certificateStoreService, IFileService fileService)
         {
             this.logger = loggerFactory.Create<ExcelService>();
             this.certificateStoreService = certificateStoreService;
+            this.fileService = fileService;
         }
 
-        public void SetPathToFiles(string filePath)
+        public void SetPathToFiles(string targetDirectory)
         {
-            this.CountFiles(filePath);
-            this.fileList = this.ListAllExcelFilesFrom(filePath);
+            this.fileList = this.ListAllExcelFilesFromDirectory(targetDirectory);
         }
 
         public void AddDigitalSignature(string certName)
@@ -39,6 +39,7 @@ namespace ExcelServices
             if (cert == null)
             {
                 this.logger.Error($"{certName} not found!");
+                this.ClearFileList();
             }
             else
             {
@@ -94,18 +95,20 @@ namespace ExcelServices
                 catch (Exception ex)
                 {
                     this.logger.Error(ex);
+                    this.ClearFileList();
                     this.DisposeComObjects();
                 }
                 finally
                 {
+                    this.ClearFileList();
                     this.DisposeComObjects();
                 }
             }
         }
 
-        public void DeleteAllDigitalSignatures(string filePath)
+        public void DeleteAllDigitalSignatures(string targetDirectory)
         {
-            var fileList = this.ListAllExcelFilesFrom(filePath);
+            var fileList = this.ListAllExcelFilesFromDirectory(targetDirectory);
 
             try
             {
@@ -160,35 +163,26 @@ namespace ExcelServices
             }
         }
 
-        private int CountFiles(string filePath)
+        private List<string> ListAllExcelFilesFromDirectory(string targetDirectory)
         {
-            var count = Directory
-                .EnumerateFiles(filePath)
-                .Count(filename =>
-                    fileExtensions.Contains(Path.GetExtension(filename)));
+            var fileList = new List<string>();
 
-            this.logger.Debug($"Found {count} files in {filePath}");
-            Console.WriteLine($"Found {count} files in {filePath}");
+            var filesFromDirectory = this.fileService.ListAllExcelFilesFromDirectory(targetDirectory);
 
-            return count;
-        }
-
-        private List<string> ListAllExcelFilesFrom(string filePath)
-        {
-            var filePaths = Directory.GetFiles(filePath);
-
-            var fileList = Directory
-                .EnumerateFiles(filePath)
-                .Where(filename =>
-                    fileExtensions.Contains(Path.GetExtension(filename))).ToList();
-
-            Console.WriteLine($"File list: ");
-            foreach (var file in fileList)
+            foreach (var files in filesFromDirectory)
             {
-                Console.WriteLine(Path.GetFileName(file));
+                foreach(var file in files.FileList)
+                {
+                    fileList.Add(file);
+                }
             }
 
             return fileList;
+        }
+
+        private void ClearFileList()
+        {
+            this.fileList.Clear();
         }
 
         private void DisposeComObjects()

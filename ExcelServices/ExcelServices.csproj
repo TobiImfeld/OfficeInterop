@@ -61,8 +61,10 @@
   <ItemGroup>
     <Compile Include="CertificateStoreService.cs" />
     <Compile Include="ExcelService.cs" />
+    <Compile Include="FileService.cs" />
     <Compile Include="ICertificateStoreService.cs" />
     <Compile Include="IExcelService.cs" />
+    <Compile Include="IFileService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
