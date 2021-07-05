@@ -1,14 +1,41 @@
-﻿using ExcelServices;
+﻿using System;
+using System.Configuration;
 
 namespace ExcelApp
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            ICertificateStoreService certificateStoreService = new CertificateStoreService();
-            IExcelService excelService = new ExcelService(certificateStoreService);
-            excelService.AddDigitalSignature(@"C:\Temp\Test1.xlsx","TobiOfficeCert");
+            var path = ConfigurationManager.AppSettings["LogFilePath"];
+            var version = ConfigurationManager.AppSettings["Version"];
+            Console.WriteLine($"Excel Signing App v{version}");
+
+            var main = MainInitializer
+                .Init()
+                .AddLogging(path);
+
+            var logger = main.GetLoggerFactory().Create<Program>();
+
+            logger.Info("Start ExcelApp");
+
+            Console.WriteLine("Enter command");
+
+            var parser = main.GetParserService();
+            var run = true;
+
+            while (run)
+            {
+                var input = Console.ReadLine();
+                var exitCode = parser.ParseInput(input.Split());
+                if(exitCode == 1)
+                {
+                    run = false;
+                }
+            }
+
+            logger.Info("Stop ExcelApp");
+            main.CloseLogging();
         }
     }
 }
