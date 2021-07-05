@@ -4,7 +4,6 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ExcelServices
@@ -40,6 +39,7 @@ namespace ExcelServices
             if (cert == null)
             {
                 this.logger.Error($"{certName} not found!");
+                this.ClearFileList();
             }
             else
             {
@@ -95,10 +95,12 @@ namespace ExcelServices
                 catch (Exception ex)
                 {
                     this.logger.Error(ex);
+                    this.ClearFileList();
                     this.DisposeComObjects();
                 }
                 finally
                 {
+                    this.ClearFileList();
                     this.DisposeComObjects();
                 }
             }
@@ -176,6 +178,11 @@ namespace ExcelServices
             }
 
             return fileList;
+        }
+
+        private void ClearFileList()
+        {
+            this.fileList.Clear();
         }
 
         private void DisposeComObjects()
