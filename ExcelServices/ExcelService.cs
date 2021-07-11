@@ -53,6 +53,9 @@ namespace ExcelServices
                             this.books = this.excelApp.Workbooks;
                             this.book = this.books.Open(file);
 
+                            var vbaSigned = this.book.VBASigned;
+                            var vbaProjName = this.book.VBProject.Name;
+
                             this.excelApp.DisplayAlerts = false;
                             this.excelApp.Visible = false;
 
@@ -63,6 +66,9 @@ namespace ExcelServices
                             {
                                 signatureSet.ShowSignaturesPane = false;
                                 var signed = signature.IsSigned;
+
+                                this.logger.Debug($"Is vba macro {vbaProjName} signed: {vbaSigned}");
+                                Console.WriteLine($"Is vba macro {vbaProjName} signed: {vbaSigned}");
 
                                 this.logger.Debug($"Is file {Path.GetFileName(file)} signed: {signed}");
                                 this.logger.Debug($"Signature issuer: {signature.Issuer}");
