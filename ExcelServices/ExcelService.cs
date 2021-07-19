@@ -17,8 +17,6 @@ namespace ExcelServices
         private Workbooks books = null;
         private Workbook book = null;
         private List<string> fileList;
-        private HashSet<string> fileExtensions = new HashSet<string>(
-            StringComparer.OrdinalIgnoreCase){ ".xls", ".xlsx", ".xlsm" };
 
         public ExcelService(ILoggerFactory loggerFactory, ICertificateStoreService certificateStoreService, IFileService fileService)
         {
@@ -54,7 +52,7 @@ namespace ExcelServices
                             this.book = this.books.Open(file);
 
                             var vbaSigned = this.book.VBASigned;
-                            var vbaProjName = this.book.VBProject.Name;
+                            var vbaProjName = this.book.VBProject.Collection.VBE;
 
                             this.excelApp.DisplayAlerts = false;
                             this.excelApp.Visible = false;

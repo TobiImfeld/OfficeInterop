@@ -10,9 +10,25 @@ namespace CommandLineParser
         public string PathToFiles { get; set; }
     }
 
+    //example command: "vbapath -p C:\Temp"
+    [Verb("vbapath", HelpText = "Set path to files")]
+    public class VbaPathOptions
+    {
+        [Option('p', "PathToVbaFiles", Required = false)]
+        public string PathToVbaFiles { get; set; }
+    }
+
     //example command: "cert -c CertificateName"
     [Verb("cert", HelpText = "Set certificate name")]
     public class CertificateNameOptions
+    {
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
+    //example command: "signvba -c CertificateName"
+    [Verb("signvba", HelpText = "Set certificate name")]
+    public class SignVbaOptions
     {
         [Option('c', "CertName", Required = false)]
         public string CertName { get; set; }

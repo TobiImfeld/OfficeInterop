@@ -11,23 +11,30 @@ namespace CommandLineParser
     {
         private readonly ILogger logger;
         private readonly IExcelService excelService;
+        private readonly IExcelVbaService excelVbaService;
         private readonly Parser parser;
 
-        public ParserService(ILoggerFactory loggerFactory, IExcelService excelService)
+        public ParserService(
+            ILoggerFactory loggerFactory,
+            IExcelService excelService,
+            IExcelVbaService excelVbaService)
         {
             this.logger = loggerFactory.Create<ParserService>(); ;
             this.excelService = excelService;
+            this.excelVbaService = excelVbaService;
             parser = new Parser();
         }
 
         public int ParseInput(string[] args)
         {
-           return this.parser.ParseArguments<PathOptions, CertificateNameOptions, DeleteSignatureOptions, StopOptions>(args)
+           return this.parser.ParseArguments<PathOptions, CertificateNameOptions, DeleteSignatureOptions, StopOptions, VbaPathOptions, SignVbaOptions>(args)
                 .MapResult(
                 (PathOptions opts) => this.SetPathToFiles(opts),
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
                 (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
                 (StopOptions opts) => this.StopApp(opts),
+                (VbaPathOptions opts) => this.SetPathToVbaFiles(opts),
+                (SignVbaOptions opts) => this.SignVbaExcelFiles(opts),
                 errs => this.HandleParseError(errs)
                 );
         }
@@ -51,6 +58,25 @@ namespace CommandLineParser
             return exitCode;
         }
 
+        private int SetPathToVbaFiles(VbaPathOptions options)
+        {
+            var exitCode = 0;
+
+            var path = options.PathToVbaFiles;
+            if (path != null)
+            {
+                this.logger.Debug($"vbapath= {path}");
+                this.excelVbaService.SetPathToVbaFiles(options.PathToVbaFiles);
+            }
+            else
+            {
+                exitCode = -1;
+                return exitCode;
+            }
+
+            return exitCode;
+        }
+
         private int SetCertificateName(CertificateNameOptions options)
         {
             var exitCode = 0;
@@ -60,6 +86,25 @@ namespace CommandLineParser
             {
                 this.logger.Debug($"certificate name= {certName}");
                 this.excelService.AddDigitalSignature(certName);
+            }
+            else
+            {
+                exitCode = -1;
+                return exitCode;
+            }
+
+            return exitCode;
+        }
+
+        private int SignVbaExcelFiles(SignVbaOptions options)
+        {
+            var exitCode = 0;
+
+            var certName = options.CertName;
+            if (certName != null)
+            {
+                this.logger.Debug($"certificate name= {certName}");
+                this.excelVbaService.AddDigitalSignatureToVbaMacro(certName);
             }
             else
             {
