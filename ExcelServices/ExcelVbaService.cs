@@ -22,7 +22,7 @@ namespace ExcelServices
 
         public void SetPathToVbaFiles(string targetDirectory)
         {
-            this.fileList = this.ListAllExcelFilesFromDirectory(targetDirectory);
+            this.fileList = this.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
         }
 
         public void AddDigitalSignatureToVbaMacro(string certName)
@@ -44,7 +44,7 @@ namespace ExcelServices
                     {
                         using (ExcelWorkbook workbook = excelPackage.Workbook)
                         {
-                            OfficeOpenXml.VBA.ExcelVbaProject vbaProject  = null;
+                            OfficeOpenXml.VBA.ExcelVbaProject vbaProject = null;
 
                             try
                             {
@@ -52,38 +52,49 @@ namespace ExcelServices
                             }
                             catch (Exception ex)
                             {
-                                this.logger.Debug($"no vba project added at file: {file}");
-                                this.logger.Debug($"Exception: {ex}");
+                                this.logger.Debug($"Error at file: {file} ! Execution stopped with Exception: {ex}");
+                                workbook.Dispose();
+                                excelPackage.Dispose();
+                                return;
                             }
-                           
+
                             if(vbaProject != null)
                             {
                                 var vbaProjName = workbook.VbaProject.Name;
-                                this.logger.Debug($"vba project name: {vbaProjName}");
-                                Console.WriteLine($"vba project name: {vbaProjName}");
+                                this.logger.Debug($"vba project name: {vbaProjName} in excel file: {file}");
+                                Console.WriteLine($"vba project name: {vbaProjName} in excel file: {file}");
 
                                 workbook.VbaProject.Signature.Certificate = cert;
                                 excelPackage.SaveAs(new FileInfo(file));
+
+                                workbook.Dispose();
+                                excelPackage.Dispose();
                             }
                             else
                             {
+                                var vbaProjName = workbook.VbaProject.Name;
                                 workbook.CreateVBAProject();
                                 workbook.VbaProject.Signature.Certificate = cert;
-                                excelPackage.SaveAs(new FileInfo(file));
-                            }
 
-                            
+                                this.logger.Debug($"vba project name: {vbaProjName} in excel file: {file}");
+                                Console.WriteLine($"vba project name: {vbaProjName} in excel file: {file}");
+
+                                excelPackage.SaveAs(new FileInfo(file));
+
+                                workbook.Dispose();
+                                excelPackage.Dispose();
+                            }
                         }
                     }
                 }
             }
         }
 
-        private List<string> ListAllExcelFilesFromDirectory(string targetDirectory)
+        private List<string> ListAllXlsmExcelFilesFromDirectory(string targetDirectory)
         {
             var fileList = new List<string>();
 
-            var filesFromDirectory = this.fileService.ListAllExcelFilesFromDirectory(targetDirectory);
+            var filesFromDirectory = this.fileService.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
 
             foreach (var files in filesFromDirectory)
             {

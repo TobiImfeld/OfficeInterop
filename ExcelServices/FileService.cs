@@ -9,9 +9,15 @@ namespace ExcelServices
     public class FileService : IFileService
     {
         private readonly ILogger logger;
-        private HashSet<string> fileExtensions = new HashSet<string>(
-            StringComparer.OrdinalIgnoreCase) { ".xls", ".xlsx", ".xlsm" };
+        private HashSet<string> fileExtensions =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ExcelFileExtensions.XLS,
+                ExcelFileExtensions.XLSX,
+                ExcelFileExtensions.XLSM
+            };
         private List<FileListDto> directoryFileList = new List<FileListDto>();
+        private List<FileListDto> directoryXmlsFileList = new List<FileListDto>();
 
         public FileService(ILoggerFactory loggerFactory)
         {
@@ -22,6 +28,39 @@ namespace ExcelServices
         {
             this.ProcessDirectory(filePath);
             return this.RemoveEntriesWithZeroFiles(this.directoryFileList);
+        }
+
+        public List<FileListDto> ListAllXlsmExcelFilesFromDirectory(string filePath)
+        {
+            this.ProcessDirectoryForXlsmFiles(filePath);
+            return this.RemoveEntriesWithZeroFiles(this.directoryXmlsFileList);
+        }
+
+        private void ProcessDirectoryForXlsmFiles(string targetDirectory)
+        {
+            var fileExtension = ExcelFileExtensions.XLSM;
+
+            var count = this.CountXlmsFilesInDirectory(targetDirectory);
+            this.PrintNumberOfFilesFromDirectory(count, targetDirectory);
+
+            var fileEntries = Directory
+                .EnumerateFiles(targetDirectory)
+                .Where(filename =>
+                    fileExtension.Equals(Path.GetExtension(filename))).ToList();
+
+            foreach (string filePath in fileEntries)
+            {
+                PrintFileNamesFromDirectory(filePath, targetDirectory);
+            }
+
+            var FileListDto = new FileListDto(count, fileEntries);
+            this.directoryXmlsFileList.Add(FileListDto);
+
+            var subdirectoryEntries = Directory.GetDirectories(targetDirectory);
+            foreach (string subdirectory in subdirectoryEntries)
+            {
+                ProcessDirectoryForXlsmFiles(subdirectory);
+            }
         }
 
         private void ProcessDirectory(string targetDirectory)
@@ -57,6 +96,16 @@ namespace ExcelServices
                     fileExtensions.Contains(Path.GetExtension(filename)));
         }
 
+        private int CountXlmsFilesInDirectory(string targetDirectory)
+        {
+            var fileExtension = ExcelFileExtensions.XLSM;
+
+            return Directory
+                .EnumerateFiles(targetDirectory)
+                .Count(filename =>
+                    fileExtension.Equals(Path.GetExtension(filename)));
+        }
+
         private List<FileListDto> RemoveEntriesWithZeroFiles(List<FileListDto> fileList)
         {
             return fileList
@@ -66,8 +115,8 @@ namespace ExcelServices
 
         private void PrintFileNamesFromDirectory(string filePath, string targetDirectory)
         {
-            this.logger.Debug($"Found {Path.GetFileName(filePath)} files in {targetDirectory}");
-            Console.WriteLine($"Found {Path.GetFileName(filePath)} files in {targetDirectory}");
+            this.logger.Debug($"Found {Path.GetFileName(filePath)} file in {targetDirectory}");
+            Console.WriteLine($"Found {Path.GetFileName(filePath)} file in {targetDirectory}");
         }
 
         private void PrintNumberOfFilesFromDirectory(int count, string targetDirectory)
