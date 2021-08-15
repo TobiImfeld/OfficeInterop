@@ -27,7 +27,14 @@ namespace CommandLineParser
 
         public int ParseInput(string[] args)
         {
-           return this.parser.ParseArguments<PathOptions, CertificateNameOptions, DeleteSignatureOptions, StopOptions, VbaPathOptions, SignVbaOptions>(args)
+           return this.parser.ParseArguments<
+               PathOptions,
+               CertificateNameOptions,
+               DeleteSignatureOptions,
+               StopOptions,
+               VbaPathOptions,
+               SignVbaOptions,
+               SignOneExcelFileOptions>(args)
                 .MapResult(
                 (PathOptions opts) => this.SetPathToFiles(opts),
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
@@ -35,6 +42,7 @@ namespace CommandLineParser
                 (StopOptions opts) => this.StopApp(opts),
                 (VbaPathOptions opts) => this.SetPathToVbaFiles(opts),
                 (SignVbaOptions opts) => this.SignVbaExcelFiles(opts),
+                (SignOneExcelFileOptions opts) => this.SignOneExcelFile(opts),
                 errs => this.HandleParseError(errs)
                 );
         }
@@ -104,7 +112,51 @@ namespace CommandLineParser
             if (certName != null)
             {
                 this.logger.Debug($"certificate name= {certName}");
-                this.excelVbaService.AddDigitalSignatureToVbaMacro(certName);
+
+                try
+                {
+                    this.excelVbaService.AddDigitalSignatureToVbaMacro(certName);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Debug($"Execution stopped with Exception: {ex}");
+                    Console.WriteLine($"Execution stopped with Exception!");
+                    exitCode = -1;
+                    return exitCode;
+                }
+            }
+            else
+            {
+                exitCode = -1;
+                return exitCode;
+            }
+
+            return exitCode;
+        }
+
+        private int SignOneExcelFile(SignOneExcelFileOptions options)
+        {
+            var exitCode = 0;
+
+            var filePath = options.FilePath;
+            var certName = options.CertName;
+            
+            if (certName != null)
+            {
+                this.logger.Debug($"file path= {filePath}");
+                this.logger.Debug($"certificate name= {certName}");
+
+                try
+                {
+                    this.excelVbaService.SignOneExcelFileWithDigitalSignature(filePath, certName);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Debug($"Execution stopped with Exception: {ex}");
+                    Console.WriteLine($"Execution stopped with Exception!");
+                    exitCode = -1;
+                    return exitCode;
+                }
             }
             else
             {

@@ -34,6 +34,16 @@ namespace CommandLineParser
         public string CertName { get; set; }
     }
 
+    //example command: "signvbafile -p FilePath -c CertificateName"
+    [Verb("signvbafile", HelpText = "Sign one excel file with vba project with certificate")]
+    public class SignOneExcelFileOptions
+    {
+        [Option('p', "filePath", Required = false)]
+        public string FilePath { get; set; }
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
     //example command: "stop -s 1"
     [Verb("stop", HelpText = "Stops the app")]
     public class StopOptions
