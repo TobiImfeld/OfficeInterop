@@ -3,6 +3,7 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ExcelServices
 {
@@ -36,60 +37,9 @@ namespace ExcelServices
             }
             else
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
                 foreach (var file in this.fileList)
                 {
-                    using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(file)))
-                    {
-                        using (ExcelWorkbook workbook = excelPackage.Workbook)
-                        {
-                            OfficeOpenXml.VBA.ExcelVbaProject vbaProject = null;
-
-                            var check = this.IsVbaProjectExisting(workbook);
-
-                            try
-                            {
-                                vbaProject = workbook.VbaProject;
-                            }
-                            catch (Exception ex)
-                            {
-                                workbook.Dispose();
-                                excelPackage.Dispose();
-
-                                throw new Exception($"Error at file: {file} ! Execution stopped with Exception: {ex}");
-                            }
-
-                            if (vbaProject != null)
-                            {
-                                this.IsVbaProjectSigned(workbook);
-
-                                var vbaProjName = workbook.VbaProject.Name;
-                                this.logger.Debug($"vba project name: {vbaProjName} in excel file: {file}");
-                                Console.WriteLine($"vba project name: {vbaProjName} in excel file: {file}");
-
-                                workbook.VbaProject.Signature.Certificate = cert;
-                                excelPackage.SaveAs(new FileInfo(file));
-
-                                workbook.Dispose();
-                                excelPackage.Dispose();
-                            }
-                            else
-                            {
-                                var vbaProjName = workbook.VbaProject.Name;
-                                workbook.CreateVBAProject();
-                                workbook.VbaProject.Signature.Certificate = cert;
-
-                                this.logger.Debug($"vba project name: {vbaProjName} in excel file: {file}");
-                                Console.WriteLine($"vba project name: {vbaProjName} in excel file: {file}");
-
-                                excelPackage.SaveAs(new FileInfo(file));
-
-                                workbook.Dispose();
-                                excelPackage.Dispose();
-                            }
-                        }
-                    }
+                    this.SignExcelFileWithDigitalSignature(file, cert);
                 }
             }
         }
@@ -101,46 +51,44 @@ namespace ExcelServices
             if (cert == null)
             {
                 this.logger.Error($"{certName} not found!");
-                this.ClearFileList();
             }
             else
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                this.SignExcelFileWithDigitalSignature(fileName, cert);
+            }
+        }
 
-                using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(fileName)))
+        public void DeleteOneDigitalSignatureFromExcelFile(string fileName)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(fileName)))
+            {
+                using (ExcelWorkbook workbook = excelPackage.Workbook)
                 {
-                    using (ExcelWorkbook workbook = excelPackage.Workbook)
+                    var vbaProjectExisting = this.IsVbaProjectExisting(workbook);
+
+                    if (vbaProjectExisting)
                     {
-                        var vbaProjectExisting = this.IsVbaProjectExisting(workbook);
+                        this.IsVbaProjectSigned(workbook);
 
-                        if (vbaProjectExisting)
-                        {
-                            this.IsVbaProjectSigned(workbook);
+                        var vbaProjName = workbook.VbaProject.Name;
+                        workbook.VbaProject.Signature.Certificate = null; //Funktioniert nicht!
+                        excelPackage.SaveAs(new FileInfo(fileName));
 
-                            var vbaProjName = workbook.VbaProject.Name;
-                            this.logger.Debug($"vba project name: {vbaProjName} in excel file: {fileName}");
-                            Console.WriteLine($"vba project name: {vbaProjName} in excel file: {fileName}");
+                        this.logger.Debug($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
+                        Console.WriteLine($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
 
-                            workbook.VbaProject.Signature.Certificate = cert;
-                            excelPackage.SaveAs(new FileInfo(fileName));
+                        workbook.Dispose();
+                        excelPackage.Dispose();
+                    }
+                    else
+                    {
+                        this.logger.Debug($"No vba project existing in excel file: {fileName}");
+                        Console.WriteLine($"No vba project existing in excel file: {fileName}");
 
-                            workbook.Dispose();
-                            excelPackage.Dispose();
-                        }
-                        else
-                        {
-                            workbook.CreateVBAProject();
-                            workbook.VbaProject.Signature.Certificate = cert;
-                            var vbaProjName = workbook.VbaProject.Name;
-
-                            this.logger.Debug($"new vba project created with name: {vbaProjName} in excel file: {fileName}");
-                            Console.WriteLine($"new vba project created with name: {vbaProjName} in excel file: {fileName}");
-
-                            excelPackage.SaveAs(new FileInfo(fileName));
-
-                            workbook.Dispose();
-                            excelPackage.Dispose();
-                        }
+                        workbook.Dispose();
+                        excelPackage.Dispose();
                     }
                 }
             }
@@ -168,6 +116,53 @@ namespace ExcelServices
             this.fileList.Clear();
         }
 
+        private void SignExcelFileWithDigitalSignature(string fileName, X509Certificate2 cert)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(fileName)))
+            {
+                using (ExcelWorkbook workbook = excelPackage.Workbook)
+                {
+                    var vbaProjectExisting = this.IsVbaProjectExisting(workbook);
+
+                    if (vbaProjectExisting)
+                    {
+                        this.IsVbaProjectSigned(workbook);
+
+                        var vbaProjName = workbook.VbaProject.Name;
+                        this.logger.Debug($"vba project name: {vbaProjName} in excel file: {fileName}");
+                        Console.WriteLine($"vba project name: {vbaProjName} in excel file: {fileName}");
+
+                        workbook.VbaProject.Signature.Certificate = cert;
+                        excelPackage.SaveAs(new FileInfo(fileName));
+
+                        workbook.Dispose();
+                        excelPackage.Dispose();
+                    }
+                    else
+                    {
+                        workbook.CreateVBAProject();
+                        workbook.VbaProject.Signature.Certificate = cert;
+                        var vbaProjName = workbook.VbaProject.Name;
+
+                        this.logger.Debug($"new vba project created with name: {vbaProjName} in excel file: {fileName}");
+                        Console.WriteLine($"new vba project created with name: {vbaProjName} in excel file: {fileName}");
+
+                        excelPackage.SaveAs(new FileInfo(fileName));
+
+                        workbook.Dispose();
+                        excelPackage.Dispose();
+                    }
+                }
+            }
+        }
+
+        private void DeleteDigitalSignatureFromExcelFile(string fileName)
+        {
+
+        }
+
         private bool IsVbaProjectSigned(ExcelWorkbook workbook)
         {
             var isSigned = false;
@@ -175,7 +170,7 @@ namespace ExcelServices
             try
             {
                 var cert = workbook.VbaProject.Signature.Certificate;
-                var issuerName = cert.IssuerName;
+                var issuerName = cert.IssuerName.Name;
 
                 if (cert != null)
                 {

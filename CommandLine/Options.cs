@@ -59,4 +59,12 @@ namespace CommandLineParser
         [Option('p', "PathToFiles", Required = false)]
         public string PathToFiles { get; set; }
     }
+
+    //example command: "delSig -p C:\Temp "
+    [Verb("delsigfrom", HelpText = "Delete certificate from specific file")]
+    public class DeleteSignatureFromFileOptions
+    {
+        [Option('f', "fileName", Required = false)]
+        public string FileName { get; set; }
+    }
 }
