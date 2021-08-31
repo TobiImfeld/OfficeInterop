@@ -61,7 +61,7 @@ namespace CommandLineParser
     }
 
     //example command: "delSig -p C:\Temp "
-    [Verb("delsigfrom", HelpText = "Delete certificate from specific file")]
+    [Verb("delsigfromvba", HelpText = "Delete certificate from specific excel vba project file")]
     public class DeleteSignatureFromFileOptions
     {
         [Option('f', "fileName", Required = false)]

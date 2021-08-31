@@ -38,9 +38,43 @@ namespace ExcelServices
                     signingCert = signingCerts[0];
                     this.logger.Debug($"Found certificate: {signingCert}");
                     return signingCert;
-                }    
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                this.logger.Error(ex);
+                return null;
+            }
+            finally
+            {
+                this.logger.Debug($"Close certificate store");
+                store.Close();
+            }
+        }
+
+        public X509Certificate2 GetCertificateWithoutPrivateKeyFromStore()
+        {
+            this.store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
+            this.logger.Info($"Open certificate store: {StoreName.Root.ToString()} for: {StoreLocation.CurrentUser.ToString()}");
+
+            try
+            {
+                store.Open(OpenFlags.ReadOnly);
+                X509Certificate2Collection certCollection = store.Certificates;
+
+                foreach (var cert in certCollection)
+                {
+                    if (!cert.HasPrivateKey)
+                    {
+                        this.logger.Info($"Certificate {cert.Issuer} without private key found");
+                        return cert;
+                    }
+                }
+
+                this.logger.Info($"None certificate found without private key!");
+                return null;
+            }
+            catch (Exception ex)
             {
                 this.logger.Error(ex);
                 return null;

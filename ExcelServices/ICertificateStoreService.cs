@@ -5,5 +5,6 @@ namespace ExcelServices
     public interface ICertificateStoreService
     {
         X509Certificate2 GetCertificateFromStore(string certName);
+        X509Certificate2 GetCertificateWithoutPrivateKeyFromStore();
     }
 }
