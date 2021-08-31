@@ -213,15 +213,18 @@ namespace ExcelServices
 
             try
             {
-                var project = workbook.VbaProject;
+                var codeModule = workbook.CodeModule;
 
-                if (project != null)
+                if (codeModule != null)
                 {
-                    vbaProjectExisting = true;
-                }
+                    if (workbook.VbaProject != null)
+                    {
+                        vbaProjectExisting = true;
 
-                this.logger.Debug($"vba project in excel file existing: {vbaProjectExisting}");
-                Console.WriteLine($"vba project in excel file existing: {vbaProjectExisting}");
+                        this.logger.Debug($"vba project in excel file existing: {vbaProjectExisting}");
+                        Console.WriteLine($"vba project in excel file existing: {vbaProjectExisting}");
+                    }
+                }
 
                 return vbaProjectExisting;
             }
