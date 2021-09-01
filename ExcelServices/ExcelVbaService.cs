@@ -48,9 +48,22 @@ namespace ExcelServices
             }
         }
 
-        public void DeleteAllExcelVbaSignatures(string filePath)
+        public void DeleteAllExcelVbaSignatures(string targetDirectory)
         {
-            throw new NotImplementedException();
+            var fileList = this.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
+            var certWithoutPrivateKey = this.certificateStoreService.GetCertificateWithoutPrivateKeyFromStore();
+
+            if (certWithoutPrivateKey == null)
+            {
+                this.logger.Error($"None certificate without private key found in certificate store Root");
+            }
+            else
+            {
+                foreach (var file in fileList)
+                {
+                    this.SignVbaExcelFileWithDigitalSignature(file, certWithoutPrivateKey);
+                }
+            }
         }
 
         public void SignOneVbaExcelFileWithDigitalSignature(string fileName, string certName)
