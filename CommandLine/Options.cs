@@ -10,36 +10,10 @@ namespace CommandLineParser
         public string PathToFiles { get; set; }
     }
 
-    //example command: "vbapath -p C:\Temp"
-    [Verb("vbapath", HelpText = "Set path to files")]
-    public class VbaPathOptions
-    {
-        [Option('p', "PathToVbaFiles", Required = false)]
-        public string PathToVbaFiles { get; set; }
-    }
-
     //example command: "cert -c CertificateName"
     [Verb("cert", HelpText = "Set certificate name")]
     public class CertificateNameOptions
     {
-        [Option('c', "CertName", Required = false)]
-        public string CertName { get; set; }
-    }
-
-    //example command: "signvba -c CertificateName"
-    [Verb("signvba", HelpText = "Set certificate name")]
-    public class SignVbaOptions
-    {
-        [Option('c', "CertName", Required = false)]
-        public string CertName { get; set; }
-    }
-
-    //example command: "signvbafile -p FilePath -c CertificateName"
-    [Verb("signvbafile", HelpText = "Sign one excel file with vba project with certificate")]
-    public class SignOneExcelFileOptions
-    {
-        [Option('p', "filePath", Required = false)]
-        public string FilePath { get; set; }
         [Option('c', "CertName", Required = false)]
         public string CertName { get; set; }
     }
@@ -60,11 +34,49 @@ namespace CommandLineParser
         public string PathToFiles { get; set; }
     }
 
-    //example command: "delSig -p C:\Temp "
+    //example command: "vbapath -p C:\Temp"
+    [Verb("vbapath", HelpText = "Set path to files")]
+    public class VbaPathOptions
+    {
+        [Option('p', "PathToVbaFiles", Required = false)]
+        public string PathToVbaFiles { get; set; }
+    }
+
+    //example command: "signallvba -p FilePath -c CertificateName"
+    [Verb("signallvba", HelpText = "Set certificate name")]
+    public class SignAllVbaOptions
+    {
+        [Option('p', "filePath", Required = false)]
+        public string FilePath { get; set; }
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
+    //example command: "signvbafile -f FileName -c CertificateName"
+    [Verb("signvbafile", HelpText = "Sign one excel file with vba project with certificate")]
+    public class SignOneVbaExcelFileOptions
+    {
+        [Option('f', "fileName", Required = false)]
+        public string FileName { get; set; }
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
+    //example command: "delsigfromvba -f FileName"
     [Verb("delsigfromvba", HelpText = "Delete certificate from specific excel vba project file")]
-    public class DeleteSignatureFromFileOptions
+    public class DeleteSignatureFromOneVbaExcelFileOptions
     {
         [Option('f', "fileName", Required = false)]
         public string FileName { get; set; }
     }
+
+    //example command: "delallvbasig -p FilePath"
+    [Verb("delallvbasig", HelpText = "Delete signature from all excel vba project files")]
+    public class DeleteAllExcelVbaSignaturesOptions
+    {
+        [Option('p', "filePath", Required = false)]
+        public string FilePath { get; set; }
+    }
 }
+
+

@@ -33,18 +33,20 @@ namespace CommandLineParser
                DeleteSignatureOptions,
                StopOptions,
                VbaPathOptions,
-               SignVbaOptions,
-               SignOneExcelFileOptions,
-               DeleteSignatureFromFileOptions>(args)
+               SignAllVbaOptions,
+               SignOneVbaExcelFileOptions,
+               DeleteSignatureFromOneVbaExcelFileOptions,
+               DeleteAllExcelVbaSignaturesOptions>(args)
                 .MapResult(
                 (PathOptions opts) => this.SetPathToFiles(opts),
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
                 (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
                 (StopOptions opts) => this.StopApp(opts),
                 (VbaPathOptions opts) => this.SetPathToVbaFiles(opts),
-                (SignVbaOptions opts) => this.SignVbaExcelFiles(opts),
-                (SignOneExcelFileOptions opts) => this.SignOneExcelFile(opts),
-                (DeleteSignatureFromFileOptions opts) => this.DeleteOneDigitalSignature(opts),
+                (SignAllVbaOptions opts) => this.SignAllVbaExcelFiles(opts),
+                (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
+                (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
+                (DeleteAllExcelVbaSignaturesOptions opts) => this.DeleteAllExcelVbaSignatures(opts),
                 errs => this.HandleParseError(errs)
                 );
         }
@@ -106,18 +108,20 @@ namespace CommandLineParser
             return exitCode;
         }
 
-        private int SignVbaExcelFiles(SignVbaOptions options)
+        private int SignAllVbaExcelFiles(SignAllVbaOptions options)
         {
             var exitCode = 0;
 
             var certName = options.CertName;
-            if (certName != null)
+            var filePath = options.FilePath;
+
+            if (certName != null && filePath != null)
             {
-                this.logger.Debug($"certificate name= {certName}");
+                this.logger.Debug($"file path= {filePath} certificate name= {certName}");
 
                 try
                 {
-                    this.excelVbaService.AddDigitalSignatureToVbaMacro(certName);
+                    this.excelVbaService.SignAllVbaExcelFiles(filePath, certName);
                 }
                 catch (Exception ex)
                 {
@@ -136,21 +140,20 @@ namespace CommandLineParser
             return exitCode;
         }
 
-        private int SignOneExcelFile(SignOneExcelFileOptions options)
+        private int SignOneVbaExcelFile(SignOneVbaExcelFileOptions options)
         {
             var exitCode = 0;
 
-            var filePath = options.FilePath;
+            var fileName = options.FileName;
             var certName = options.CertName;
             
-            if (certName != null)
+            if (certName != null && fileName != null)
             {
-                this.logger.Debug($"file path= {filePath}");
-                this.logger.Debug($"certificate name= {certName}");
+                this.logger.Debug($"file name= {fileName} certificate name= {certName}");
 
                 try
                 {
-                    this.excelVbaService.SignOneExcelFileWithDigitalSignature(filePath, certName);
+                    this.excelVbaService.SignOneVbaExcelFileWithDigitalSignature(fileName, certName);
                 }
                 catch (Exception ex)
                 {
@@ -195,7 +198,7 @@ namespace CommandLineParser
             return exitCode;
         }
 
-        private int DeleteOneDigitalSignature(DeleteSignatureFromFileOptions options)
+        private int DeleteDigitalSignatureFromOneVbaExcelFile(DeleteSignatureFromOneVbaExcelFileOptions options)
         {
             var exitCode = 0;
 
@@ -203,7 +206,37 @@ namespace CommandLineParser
             if (fileName != null)
             {
                 this.logger.Debug($"Delete file signature from= {fileName}");
-                this.excelVbaService.DeleteOneDigitalSignatureFromExcelFile(options.FileName);
+                this.excelVbaService.DeleteDigitalSignatureFromOneVbaExcelFile(options.FileName);
+            }
+            else
+            {
+                exitCode = -1;
+                return exitCode;
+            }
+
+            return exitCode;
+        }
+
+        private int DeleteAllExcelVbaSignatures(DeleteAllExcelVbaSignaturesOptions options)
+        {
+            var exitCode = 0;
+
+            var filePath = options.FilePath;
+            if (filePath != null)
+            {
+                this.logger.Debug($"file path name= {filePath}");
+
+                try
+                {
+                    this.excelVbaService.DeleteAllExcelVbaSignatures(filePath);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Debug($"Execution stopped with Exception: {ex}");
+                    Console.WriteLine($"Execution stopped with Exception!");
+                    exitCode = -1;
+                    return exitCode;
+                }
             }
             else
             {

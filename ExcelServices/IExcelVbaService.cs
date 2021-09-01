@@ -3,8 +3,9 @@
     public interface IExcelVbaService
     {
         void SetPathToVbaFiles(string targetDirectory);
-        void AddDigitalSignatureToVbaMacro(string certName);
-        void SignOneExcelFileWithDigitalSignature(string fileName, string certName);
-        void DeleteOneDigitalSignatureFromExcelFile(string fileName);
+        void SignAllVbaExcelFiles(string filePath, string certName);
+        void DeleteAllExcelVbaSignatures(string filePath);
+        void SignOneVbaExcelFileWithDigitalSignature(string fileName, string certName);
+        void DeleteDigitalSignatureFromOneVbaExcelFile(string fileName);
     }
 }

@@ -29,25 +29,31 @@ namespace ExcelServices
             this.fileList = this.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
         }
 
-        public void AddDigitalSignatureToVbaMacro(string certName)
+        public void SignAllVbaExcelFiles(string targetDirectory, string certName)
         {
+            var fileList = this.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
             var cert = this.certificateStoreService.GetCertificateFromStore(certName);
 
             if (cert == null)
             {
                 this.logger.Error($"{certName} not found!");
-                this.ClearFileList();
+                fileList.Clear();
             }
             else
             {
-                foreach (var file in this.fileList)
+                foreach (var file in fileList)
                 {
-                    this.SignExcelFileWithDigitalSignature(file, cert);
+                    this.SignVbaExcelFileWithDigitalSignature(file, cert);
                 }
             }
         }
 
-        public void SignOneExcelFileWithDigitalSignature(string fileName, string certName)
+        public void DeleteAllExcelVbaSignatures(string filePath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SignOneVbaExcelFileWithDigitalSignature(string fileName, string certName)
         {
             var cert = this.certificateStoreService.GetCertificateFromStore(certName);
 
@@ -57,11 +63,11 @@ namespace ExcelServices
             }
             else
             {
-                this.SignExcelFileWithDigitalSignature(fileName, cert);
+                this.SignVbaExcelFileWithDigitalSignature(fileName, cert);
             }
         }
 
-        public void DeleteOneDigitalSignatureFromExcelFile(string fileName)
+        public void DeleteDigitalSignatureFromOneVbaExcelFile(string fileName)
         {
             var certWithoutPrivateKey = this.certificateStoreService.GetCertificateWithoutPrivateKeyFromStore();
 
@@ -71,7 +77,7 @@ namespace ExcelServices
             }
             else
             {
-                this.DeleteDigitalSignatureFromExcelFile(fileName, certWithoutPrivateKey);
+                this.DeleteDigitalSignatureFromVbaExcelFile(fileName, certWithoutPrivateKey);
             }
         }
 
@@ -97,7 +103,7 @@ namespace ExcelServices
             this.fileList.Clear();
         }
 
-        private void SignExcelFileWithDigitalSignature(string fileName, X509Certificate2 cert)
+        private void SignVbaExcelFileWithDigitalSignature(string fileName, X509Certificate2 cert)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -140,7 +146,7 @@ namespace ExcelServices
             }
         }
 
-        private void DeleteDigitalSignatureFromExcelFile(string fileName, X509Certificate2 certWithoutPrivateKey)
+        private void DeleteDigitalSignatureFromVbaExcelFile(string fileName, X509Certificate2 certWithoutPrivateKey)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -234,5 +240,6 @@ namespace ExcelServices
                 throw new Exception($"Error in excel file! Execution stopped with Exception: {ex}");
             }
         }
+
     }
 }
