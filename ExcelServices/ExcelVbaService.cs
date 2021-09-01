@@ -61,7 +61,7 @@ namespace ExcelServices
             {
                 foreach (var file in fileList)
                 {
-                    this.SignVbaExcelFileWithDigitalSignature(file, certWithoutPrivateKey);
+                    this.DeleteDigitalSignatureFromVbaExcelFile(file, certWithoutPrivateKey);
                 }
             }
         }
@@ -171,14 +171,17 @@ namespace ExcelServices
 
                     if (vbaProjectExisting)
                     {
-                        this.IsVbaProjectSigned(workbook);
+                        var vbaSigned = this.IsVbaProjectSigned(workbook);
 
-                        var vbaProjName = workbook.VbaProject.Name;
-                        workbook.VbaProject.Signature.Certificate = certWithoutPrivateKey;
-                        excelPackage.SaveAs(new FileInfo(fileName));
+                        if (vbaSigned)
+                        {
+                            var vbaProjName = workbook.VbaProject.Name;
+                            workbook.VbaProject.Signature.Certificate = certWithoutPrivateKey;
+                            excelPackage.SaveAs(new FileInfo(fileName));
 
-                        this.logger.Debug($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
-                        Console.WriteLine($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
+                            this.logger.Debug($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
+                            Console.WriteLine($"Signature from vba project name: {vbaProjName} in excel file: {fileName} deleted");
+                        }
 
                         workbook.Dispose();
                         excelPackage.Dispose();
@@ -209,7 +212,6 @@ namespace ExcelServices
                     var issuerName = cert.IssuerName.Name;
 
                     this.logger.Debug($"vba project in excel file is signed: {isSigned} with issuer name: {issuerName}");
-                    Console.WriteLine($"vba project in excel file is signed: {isSigned} with issuer name: {issuerName}");
                 }
                 else
                 {
@@ -241,7 +243,6 @@ namespace ExcelServices
                         vbaProjectExisting = true;
 
                         this.logger.Debug($"vba project in excel file existing: {vbaProjectExisting}");
-                        Console.WriteLine($"vba project in excel file existing: {vbaProjectExisting}");
                     }
                 }
 
