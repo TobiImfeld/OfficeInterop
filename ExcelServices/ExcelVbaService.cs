@@ -12,7 +12,6 @@ namespace ExcelServices
         private readonly ILogger logger;
         private readonly ICertificateStoreService certificateStoreService;
         private readonly IFileService fileService;
-        private List<string> fileList;
 
         public ExcelVbaService(
             ILoggerFactory loggerFactory,
@@ -22,11 +21,6 @@ namespace ExcelServices
             this.logger = loggerFactory.Create<ExcelVbaService>();
             this.certificateStoreService = certificateStoreService;
             this.fileService = fileService;
-        }
-
-        public void SetPathToVbaFiles(string targetDirectory)
-        {
-            this.fileList = this.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
         }
 
         public void SignAllVbaExcelFiles(string targetDirectory, string certName)
@@ -45,6 +39,8 @@ namespace ExcelServices
                 {
                     this.SignVbaExcelFileWithDigitalSignature(file, cert);
                 }
+
+                fileList.Clear();
             }
         }
 
@@ -63,6 +59,8 @@ namespace ExcelServices
                 {
                     this.DeleteDigitalSignatureFromVbaExcelFile(file, certWithoutPrivateKey);
                 }
+
+                fileList.Clear();
             }
         }
 
@@ -109,11 +107,6 @@ namespace ExcelServices
             }
 
             return fileList;
-        }
-
-        private void ClearFileList()
-        {
-            this.fileList.Clear();
         }
 
         private void SignVbaExcelFileWithDigitalSignature(string fileName, X509Certificate2 cert)
@@ -254,6 +247,5 @@ namespace ExcelServices
                 throw new Exception($"Error in excel file! Execution stopped with Exception: {ex}");
             }
         }
-
     }
 }

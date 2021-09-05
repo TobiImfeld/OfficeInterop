@@ -32,7 +32,6 @@ namespace CommandLineParser
                CertificateNameOptions,
                DeleteSignatureOptions,
                StopOptions,
-               VbaPathOptions,
                SignAllVbaOptions,
                SignOneVbaExcelFileOptions,
                DeleteSignatureFromOneVbaExcelFileOptions,
@@ -42,7 +41,6 @@ namespace CommandLineParser
                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
                 (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
                 (StopOptions opts) => this.StopApp(opts),
-                (VbaPathOptions opts) => this.SetPathToVbaFiles(opts),
                 (SignAllVbaOptions opts) => this.SignAllVbaExcelFiles(opts),
                 (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
                 (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
@@ -67,25 +65,6 @@ namespace CommandLineParser
                 return exitCode;
             }
             
-            return exitCode;
-        }
-
-        private int SetPathToVbaFiles(VbaPathOptions options)
-        {
-            var exitCode = 0;
-
-            var path = options.PathToVbaFiles;
-            if (path != null)
-            {
-                this.logger.Debug($"vbapath= {path}");
-                this.excelVbaService.SetPathToVbaFiles(options.PathToVbaFiles);
-            }
-            else
-            {
-                exitCode = -1;
-                return exitCode;
-            }
-
             return exitCode;
         }
 
