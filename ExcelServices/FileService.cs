@@ -17,7 +17,7 @@ namespace ExcelServices
                 ExcelFileExtensions.XLSM
             };
         private List<FileListDto> directoryFileList = new List<FileListDto>();
-        private List<FileListDto> directoryXmlsFileList = new List<FileListDto>();
+        private List<string> directoryXmlsFileList = new List<string>();
 
         public FileService(ILoggerFactory loggerFactory)
         {
@@ -30,10 +30,20 @@ namespace ExcelServices
             return this.RemoveEntriesWithZeroFiles(this.directoryFileList);
         }
 
-        public List<FileListDto> ListAllXlsmExcelFilesFromDirectory(string filePath)
+        public List<string> ListAllXlsmExcelFilesFromDirectory(string filePath)
         {
+            var fileList = new List<string>();
+
             this.ProcessDirectoryForXlsmFiles(filePath);
-            return this.RemoveEntriesWithZeroFiles(this.directoryXmlsFileList);
+
+            foreach(var file in this.directoryXmlsFileList)
+            {
+                fileList.Add(file);
+            }
+
+            this.directoryXmlsFileList.Clear();
+
+            return fileList;
         }
 
         private void ProcessDirectoryForXlsmFiles(string targetDirectory)
@@ -51,10 +61,8 @@ namespace ExcelServices
             foreach (string filePath in fileEntries)
             {
                 PrintFileNamesFromDirectory(filePath, targetDirectory);
+                this.directoryXmlsFileList.Add(filePath);
             }
-
-            var FileListDto = new FileListDto(count, fileEntries);
-            this.directoryXmlsFileList.Add(FileListDto);
 
             var subdirectoryEntries = Directory.GetDirectories(targetDirectory);
             foreach (string subdirectory in subdirectoryEntries)

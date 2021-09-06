@@ -5,8 +5,7 @@ namespace ExcelServices
     public interface IFileService
     {
         List<FileListDto> ListAllExcelFilesFromDirectory(string filePath);
-        List<FileListDto> ListAllXlsmExcelFilesFromDirectory(string filePath);
-
+        List<string> ListAllXlsmExcelFilesFromDirectory(string filePath);
     }
 
     public class FileListDto
