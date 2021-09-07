@@ -7,4 +7,11 @@
         void SignOneVbaExcelFileWithDigitalSignature(string fileName, string certName);
         void DeleteDigitalSignatureFromOneVbaExcelFile(string fileName);
     }
+
+    public enum VbaProjectStates
+    {
+        Error,
+        Existing,
+        Inexisting
+    }
 }
