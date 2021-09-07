@@ -30,13 +30,14 @@ namespace ExcelServices
 
                 if (signingCerts.Count == 0)
                 {
-                    this.logger.Error($"{certName} not found! Certificates list has: {signingCerts.Count} inserts");
+                    this.logger.Error($"Certificate: {certName} not found! Certificates list has: {signingCerts.Count} inserts");
+                    Console.WriteLine($"Certificate: {certName} not found!");
                     return null;
                 }
                 else
                 {
                     signingCert = signingCerts[0];
-                    this.logger.Debug($"Found certificate: {signingCert}");
+                    this.logger.Debug($"Found certificate: {signingCert} Certificates list has: {signingCerts.Count} inserts");
                     return signingCert;
                 }
             }
