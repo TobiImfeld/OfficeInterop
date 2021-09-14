@@ -1,13 +1,13 @@
 ﻿using Logging;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace ExcelServices
 {
     public class CertificateStoreService : ICertificateStoreService
     {
         private X509Store store;
-        private X509Certificate2 signingCert;
         private readonly ILogger logger;
 
         public CertificateStoreService(ILoggerFactory loggerFactory)
@@ -30,15 +30,26 @@ namespace ExcelServices
 
                 if (signingCerts.Count == 0)
                 {
-                    this.logger.Error($"Certificate: {certName} not found! Certificates list has: {signingCerts.Count} inserts");
-                    Console.WriteLine($"Certificate: {certName} not found!");
+                    this.CertErrorMessage(certName, signingCerts.Count);
                     return null;
                 }
                 else
                 {
-                    signingCert = signingCerts[0];
-                    this.logger.Debug($"Found certificate: {signingCert} Certificates list has: {signingCerts.Count} inserts");
-                    return signingCert;
+                    string sPattern = @"CN=";
+
+                    foreach (var cert in signingCerts)
+                    {
+                        var issuerName = Regex.Replace(cert.Issuer, sPattern, string.Empty);
+
+                        if (issuerName.Equals(certName))
+                        {
+                            this.logger.Debug($"Found certificate: {cert} Certificates list has: {signingCerts.Count} inserts");
+                            return cert;
+                        }
+                    }
+
+                    this.CertErrorMessage(certName, signingCerts.Count);
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -85,6 +96,12 @@ namespace ExcelServices
                 this.logger.Debug($"Close certificate store");
                 store.Close();
             }
+        }
+
+        private void CertErrorMessage(string certName, int count)
+        {
+            this.logger.Error($"Certificate: {certName} not found! Certificates list has: {count} inserts");
+            Console.WriteLine($"Certificate: {certName} not found!");
         }
     }
 }
