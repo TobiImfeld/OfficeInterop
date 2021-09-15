@@ -5,6 +5,7 @@ namespace ExcelServices
     public interface IFileService
     {
         List<FileListDto> ListAllExcelFilesFromDirectory(string filePath);
+        List<string> ListAllXlsmExcelFilesFromDirectory(string filePath);
     }
 
     public class FileListDto
@@ -17,5 +18,12 @@ namespace ExcelServices
             this.NumberOfFiles = numberOfFiles;
             this.FileList = fileList;
         }
+    }
+
+    public static class ExcelFileExtensions
+    {
+        public const string XLS = ".xls";
+        public const string XLSX = ".xlsx";
+        public const string XLSM = ".xlsm";
     }
 }
