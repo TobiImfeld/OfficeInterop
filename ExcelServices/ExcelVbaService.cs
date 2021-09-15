@@ -256,7 +256,7 @@ namespace ExcelServices
             }
             catch (Exception ex)
             {
-                this.logger.Error($"Error in excel file {fileName}! Exception: {ex}");
+                this.logger.Error($"Error in excel file: {fileName} Exception: {ex}");
                 return VbaProjectStates.Error;
             }
         }

@@ -185,7 +185,7 @@ namespace CommandLineParser
             if (fileName != null)
             {
                 this.logger.Debug($"Delete file signature from= {fileName}");
-                this.excelVbaService.DeleteDigitalSignatureFromOneVbaExcelFile(options.FileName);
+                this.excelVbaService.DeleteDigitalSignatureFromOneVbaExcelFile(fileName);
             }
             else
             {
