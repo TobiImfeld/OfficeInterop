@@ -150,6 +150,8 @@
       <MergeAssemblies Include="$(OutputPath)System.Threading.Tasks.Extensions.dll" />
       <MergeAssemblies Include="$(OutputPath)Serilog.dll" />
       <MergeAssemblies Include="$(OutputPath)Serilog.Sinks.File.dll" />
+      <MergeAssemblies Include="$(OutputPath)EPPlus.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.IO.RecyclableMemoryStream.dll" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputFullPath)$(MSBuildProjectName).Standalone.exe</OutputAssembly>
