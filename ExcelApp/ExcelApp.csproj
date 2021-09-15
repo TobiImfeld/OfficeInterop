@@ -55,8 +55,8 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=5.0.0.1, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.5.0.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
@@ -64,8 +64,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -126,16 +126,14 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILMerge.3.0.41\build\ILMerge.props'))" />
   </Target>
-
   <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
-	<ItemGroup>
-		<FilesToDelete Include="$(OutputPath)*.pdb"/>
-		<FilesToDelete Include="$(OutputPath)*.xml"/>
-	</ItemGroup>
-	<Message Text="Delete: @(FilesToDelete, ', ')" Importance="High" />
-	<Delete Files="@(FilesToDelete)" />
+    <ItemGroup>
+      <FilesToDelete Include="$(OutputPath)*.pdb" />
+      <FilesToDelete Include="$(OutputPath)*.xml" />
+    </ItemGroup>
+    <Message Text="Delete: @(FilesToDelete, ', ')" Importance="High" />
+    <Delete Files="@(FilesToDelete)" />
   </Target>
-  
   <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
     <ConvertToAbsolutePath Paths="$(OutputPath)">
       <Output TaskParameter="AbsolutePaths" PropertyName="OutputFullPath" />
@@ -143,15 +141,15 @@
     <ItemGroup>
       <MergeAssemblies Include="$(OutputPath)$(MSBuildProjectName).exe" />
       <MergeAssemblies Include="$(OutputPath)CommandLine.dll" />
-	    <MergeAssemblies Include="$(OutputPath)CommandLineParser.dll" />
-	    <MergeAssemblies Include="$(OutputPath)ExcelServices.dll" />
-	    <MergeAssemblies Include="$(OutputPath)Logging.dll" />
+      <MergeAssemblies Include="$(OutputPath)CommandLineParser.dll" />
+      <MergeAssemblies Include="$(OutputPath)ExcelServices.dll" />
+      <MergeAssemblies Include="$(OutputPath)Logging.dll" />
       <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
       <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.dll" />
-	    <MergeAssemblies Include="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" />
-	    <MergeAssemblies Include="$(OutputPath)System.Threading.Tasks.Extensions.dll" />
-	    <MergeAssemblies Include="$(OutputPath)Serilog.dll" />
-	    <MergeAssemblies Include="$(OutputPath)Serilog.Sinks.File.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Threading.Tasks.Extensions.dll" />
+      <MergeAssemblies Include="$(OutputPath)Serilog.dll" />
+      <MergeAssemblies Include="$(OutputPath)Serilog.Sinks.File.dll" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputFullPath)$(MSBuildProjectName).Standalone.exe</OutputAssembly>
@@ -167,8 +165,7 @@
     </ItemGroup>
     <Message Text="Cleanup -&gt; @(FilesToDelete, ', ')" Importance="High" />
     <Delete Files="@(FilesToDelete)" />
-	<Copy SourceFiles="$(OutputAssembly)" DestinationFiles="$(OutputPath)\$(MSBuildProjectName).exe" />
+    <Copy SourceFiles="$(OutputAssembly)" DestinationFiles="$(OutputPath)\$(MSBuildProjectName).exe" />
     <Delete Files="$(OutputAssembly)" />
   </Target>
-
 </Project>

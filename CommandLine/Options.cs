@@ -33,4 +33,42 @@ namespace CommandLineParser
         [Option('p', "PathToFiles", Required = false)]
         public string PathToFiles { get; set; }
     }
+    
+    //example command: "signallvba -p FilePath -c CertificateName"
+    [Verb("signallvba", HelpText = "Set certificate name")]
+    public class SignAllVbaOptions
+    {
+        [Option('p', "filePath", Required = false)]
+        public string FilePath { get; set; }
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
+    //example command: "signvbafile -f FileName -c CertificateName"
+    [Verb("signvbafile", HelpText = "Sign one excel file with vba project with certificate")]
+    public class SignOneVbaExcelFileOptions
+    {
+        [Option('f', "fileName", Required = false)]
+        public string FileName { get; set; }
+        [Option('c', "CertName", Required = false)]
+        public string CertName { get; set; }
+    }
+
+    //example command: "delsigfromvba -f FileName"
+    [Verb("delsigfromvba", HelpText = "Delete certificate from specific excel vba project file")]
+    public class DeleteSignatureFromOneVbaExcelFileOptions
+    {
+        [Option('f', "fileName", Required = false)]
+        public string FileName { get; set; }
+    }
+
+    //example command: "delallvbasig -p FilePath"
+    [Verb("delallvbasig", HelpText = "Delete signature from all excel vba project files")]
+    public class DeleteAllExcelVbaSignaturesOptions
+    {
+        [Option('p', "filePath", Required = false)]
+        public string FilePath { get; set; }
+    }
 }
+
+
