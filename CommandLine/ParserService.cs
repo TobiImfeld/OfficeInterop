@@ -4,6 +4,7 @@ using Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CommandLineParser
 {
@@ -25,28 +26,34 @@ namespace CommandLineParser
             parser = new Parser();
         }
 
-        public int ParseInput(string[] args)
+        public int ParseInput(string input)
         {
-           return this.parser.ParseArguments<
-               PathOptions,
-               CertificateNameOptions,
-               DeleteSignatureOptions,
-               StopOptions,
-               SignAllVbaOptions,
-               SignOneVbaExcelFileOptions,
-               DeleteSignatureFromOneVbaExcelFileOptions,
-               DeleteAllExcelVbaSignaturesOptions>(args)
-                .MapResult(
-                (PathOptions opts) => this.SetPathToFiles(opts),
-                (CertificateNameOptions opts) => this.SetCertificateName(opts),
-                (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
-                (StopOptions opts) => this.StopApp(opts),
-                (SignAllVbaOptions opts) => this.SignAllVbaExcelFiles(opts),
-                (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
-                (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
-                (DeleteAllExcelVbaSignaturesOptions opts) => this.DeleteAllExcelVbaSignatures(opts),
-                errs => this.HandleParseError(errs)
-                );
+            var args = this.SplitInputStringIntoArgumentsArray(input);
+            return this.ParseInputArguments(args);
+        }
+
+        private int ParseInputArguments(string[] args)
+        {
+            return this.parser.ParseArguments<
+                PathOptions,
+                CertificateNameOptions,
+                DeleteSignatureOptions,
+                StopOptions,
+                SignAllVbaOptions,
+                SignOneVbaExcelFileOptions,
+                DeleteSignatureFromOneVbaExcelFileOptions,
+                DeleteAllExcelVbaSignaturesOptions>(args)
+                 .MapResult(
+                 (PathOptions opts) => this.SetPathToFiles(opts),
+                 (CertificateNameOptions opts) => this.SetCertificateName(opts),
+                 (DeleteSignatureOptions opts) => this.DeleteAllDigitalSignatures(opts),
+                 (StopOptions opts) => this.StopApp(opts),
+                 (SignAllVbaOptions opts) => this.SignAllVbaExcelFiles(opts),
+                 (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
+                 (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
+                 (DeleteAllExcelVbaSignaturesOptions opts) => this.DeleteAllExcelVbaSignatures(opts),
+                 errs => this.HandleParseError(errs)
+                 );
         }
 
         private int SetPathToFiles(PathOptions options)
@@ -64,7 +71,7 @@ namespace CommandLineParser
                 exitCode = -1;
                 return exitCode;
             }
-            
+
             return exitCode;
         }
 
@@ -125,7 +132,7 @@ namespace CommandLineParser
 
             var fileName = options.FileName;
             var certName = options.CertName;
-            
+
             if (certName != null && fileName != null)
             {
                 this.logger.Debug($"file name= {fileName} certificate name= {certName}");
@@ -229,11 +236,34 @@ namespace CommandLineParser
         private int HandleParseError(IEnumerable<Error> errs)
         {
             var result = -2;
-            Console.WriteLine("errors {0}", errs.Count());
-            if (errs.Any(x => x is HelpRequestedError || x is VersionRequestedError))
-                result = -1;
-            Console.WriteLine("Exit code {0}", result);
+
+            this.logger.Debug("Number of errors: {0}", errs.Count());
+            Console.WriteLine("Number of errors: {0}", errs.Count());
+
+            foreach(var error in errs)
+            {
+                this.logger.Debug("Parser error: {0}", error.Tag.ToString());
+                Console.WriteLine("Parser error: {0}", error.Tag.ToString());
+            }
+
             return result;
+        }
+
+        private string[] SplitInputStringIntoArgumentsArray(string input)
+        {
+            string optionsAsDelimiterPattern = @"(\-[a-z])";
+            string removeWhiteSpaceAtStartOrEndPattern = @"^\s+|\s+$";
+            string empty = string.Empty;
+
+            string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
+            string[] arguments = new string[substrings.Length];
+
+            for(int i = 0; i < substrings.Length; i++)
+            {
+                arguments[i] = Regex.Replace(substrings[i], removeWhiteSpaceAtStartOrEndPattern, empty);
+            }
+
+            return arguments;
         }
     }
 }
