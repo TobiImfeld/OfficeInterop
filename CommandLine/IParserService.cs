@@ -2,6 +2,6 @@
 {
     public interface IParserService
     {
-        int ParseInput(string[] args);
+        int ParseInput(string input);
     }
 }
