@@ -27,7 +27,7 @@ namespace ExcelApp
             while (run)
             {
                 var input = Console.ReadLine();
-                var exitCode = parser.ParseInput(input.Split());
+                var exitCode = parser.ParseInput(input);
                 if(exitCode == 1)
                 {
                     run = false;
