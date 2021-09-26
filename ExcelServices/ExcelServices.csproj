@@ -73,8 +73,10 @@
     <Compile Include="IExcelService.cs" />
     <Compile Include="IExcelVbaService.cs" />
     <Compile Include="IFileService.cs" />
+    <Compile Include="IWordService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExcelVbaService.cs" />
+    <Compile Include="WordService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logging\Logging.csproj">
