@@ -4,26 +4,16 @@ namespace ExcelServices
 {
     public interface IFileService
     {
-        List<FileListDto> ListAllExcelFilesFromDirectory(string filePath);
+        List<string> ListAllFilesFromDirectoryByFileExtension(string filePath, string fileExtension);
         List<string> ListAllXlsmExcelFilesFromDirectory(string filePath);
     }
 
-    public class FileListDto
-    {
-        public int NumberOfFiles { get; }
-        public List<string> FileList { get; }
-
-        public FileListDto(int numberOfFiles, List<string> fileList)
-        {
-            this.NumberOfFiles = numberOfFiles;
-            this.FileList = fileList;
-        }
-    }
-
-    public static class ExcelFileExtensions
+    public static class OfficeFileExtensions
     {
         public const string XLS = ".xls";
         public const string XLSX = ".xlsx";
         public const string XLSM = ".xlsm";
+        public const string DOC = ".doc";
+        public const string DOCX = ".docx";
     }
 }
