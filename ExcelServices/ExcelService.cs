@@ -169,7 +169,7 @@ namespace ExcelServices
 
         private List<string> ListAllExcelFilesFromDirectory(string targetDirectory)
         {
-            var filesFromDirectory = this.fileService.ListAllFilesFromDirectoryByFileExtension(targetDirectory, OfficeFileExtensions.XLS);
+            var filesFromDirectory = this.fileService.ListAllFilesFromDirectoryByFileExtension(targetDirectory, OfficeFileExtensions.XLSX);
             return filesFromDirectory;
         }
 
