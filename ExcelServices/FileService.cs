@@ -102,7 +102,7 @@ namespace ExcelServices
             return Directory
                 .EnumerateFiles(targetDirectory)
                 .Count(filename =>
-                    fileExtension.Contains(Path.GetExtension(filename)));
+                    fileExtension.Equals(Path.GetExtension(filename)));
         }
 
         private int CountXlmsFilesInDirectory(string targetDirectory)
