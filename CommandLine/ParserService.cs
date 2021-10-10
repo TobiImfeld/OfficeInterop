@@ -13,16 +13,19 @@ namespace CommandLineParser
         private readonly ILogger logger;
         private readonly IExcelService excelService;
         private readonly IExcelVbaService excelVbaService;
+        private readonly IWordService wordService;
         private readonly Parser parser;
 
         public ParserService(
             ILoggerFactory loggerFactory,
             IExcelService excelService,
-            IExcelVbaService excelVbaService)
+            IExcelVbaService excelVbaService,
+            IWordService wordService)
         {
             this.logger = loggerFactory.Create<ParserService>(); ;
             this.excelService = excelService;
             this.excelVbaService = excelVbaService;
+            this.wordService = wordService;
             parser = new Parser();
         }
 
@@ -42,7 +45,8 @@ namespace CommandLineParser
                 SignAllVbaOptions,
                 SignOneVbaExcelFileOptions,
                 DeleteSignatureFromOneVbaExcelFileOptions,
-                DeleteAllExcelVbaSignaturesOptions>(args)
+                DeleteAllExcelVbaSignaturesOptions,
+                SignAllDocxWordOptions>(args)
                  .MapResult(
                  (PathOptions opts) => this.SetPathToFiles(opts),
                  (CertificateNameOptions opts) => this.SetCertificateName(opts),
@@ -52,6 +56,7 @@ namespace CommandLineParser
                  (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
                  (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
                  (DeleteAllExcelVbaSignaturesOptions opts) => this.DeleteAllExcelVbaSignatures(opts),
+                 (SignAllDocxWordOptions opts) => this.SignAllDocxWordFiles(opts),
                  errs => this.HandleParseError(errs)
                  );
         }
@@ -215,6 +220,38 @@ namespace CommandLineParser
                 try
                 {
                     this.excelVbaService.DeleteAllExcelVbaSignatures(filePath);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.Debug($"Execution stopped with Exception: {ex}");
+                    Console.WriteLine($"Execution stopped with Exception!");
+                    exitCode = -1;
+                    return exitCode;
+                }
+            }
+            else
+            {
+                exitCode = -1;
+                return exitCode;
+            }
+
+            return exitCode;
+        }
+
+        private int SignAllDocxWordFiles(SignAllDocxWordOptions options)
+        {
+            var exitCode = 0;
+
+            var certName = options.CertName;
+            var filePath = options.FilePath;
+
+            if (certName != null && filePath != null)
+            {
+                this.logger.Debug($"file path= {filePath} certificate name= {certName}");
+
+                try
+                {
+                    this.wordService.SignAllWordFiles(filePath, certName);
                 }
                 catch (Exception ex)
                 {

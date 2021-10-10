@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExcelServices
+﻿namespace ExcelServices
 {
-    interface IWordService
+    public interface IWordService
     {
+        void SignAllWordFiles(string targetDirectory, string certName);
     }
 }
