@@ -89,7 +89,11 @@ namespace ExcelServices
 
         private List<string> ListAllXlsmExcelFilesFromDirectory(string targetDirectory)
         {
-            return this.fileService.ListAllXlsmExcelFilesFromDirectory(targetDirectory);
+            return this.fileService.
+                ListAllFilesFromDirectoryByFileExtension(
+                targetDirectory,
+                OfficeFileExtensions.XLSM
+                );
         }
 
         private void SignVbaExcelFileWithDigitalSignature(string fileName, X509Certificate2 cert)

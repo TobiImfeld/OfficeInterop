@@ -9,48 +9,32 @@ namespace ExcelServices
     public class FileService : IFileService
     {
         private readonly ILogger logger;
-        private HashSet<string> fileExtensions =
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ExcelFileExtensions.XLS,
-                ExcelFileExtensions.XLSX,
-                ExcelFileExtensions.XLSM
-            };
-        private List<FileListDto> directoryFileList = new List<FileListDto>();
-        private List<string> directoryXmlsFileList = new List<string>();
+        private List<string> directoryFileList = new List<string>();
 
         public FileService(ILoggerFactory loggerFactory)
         {
             this.logger = loggerFactory.Create<FileService>();
         }
 
-        public List<FileListDto> ListAllExcelFilesFromDirectory(string filePath)
-        {
-            this.ProcessDirectory(filePath);
-            return this.RemoveEntriesWithZeroFiles(this.directoryFileList);
-        }
-
-        public List<string> ListAllXlsmExcelFilesFromDirectory(string filePath)
+        public List<string> ListAllFilesFromDirectoryByFileExtension(string filePath, string fileExtension)
         {
             var fileList = new List<string>();
 
-            this.ProcessDirectoryForXlsmFiles(filePath);
+            this.ProcessDirectory(filePath, fileExtension);
 
-            foreach(var file in this.directoryXmlsFileList)
+            foreach (var file in this.directoryFileList)
             {
                 fileList.Add(file);
             }
 
-            this.directoryXmlsFileList.Clear();
+            this.directoryFileList.Clear();
 
             return fileList;
         }
 
-        private void ProcessDirectoryForXlsmFiles(string targetDirectory)
+        private void ProcessDirectory(string targetDirectory, string fileExtension)
         {
-            var fileExtension = ExcelFileExtensions.XLSM;
-
-            var count = this.CountXlmsFilesInDirectory(targetDirectory);
+            var count = this.CountFilesInDirectoryByFileExtension(targetDirectory, fileExtension);
             this.PrintNumberOfFilesFromDirectory(count, targetDirectory);
 
             var fileEntries = Directory
@@ -61,64 +45,22 @@ namespace ExcelServices
             foreach (string filePath in fileEntries)
             {
                 PrintFileNamesFromDirectory(filePath, targetDirectory);
-                this.directoryXmlsFileList.Add(filePath);
+                this.directoryFileList.Add(filePath);
             }
 
             var subdirectoryEntries = Directory.GetDirectories(targetDirectory);
             foreach (string subdirectory in subdirectoryEntries)
             {
-                ProcessDirectoryForXlsmFiles(subdirectory);
+                ProcessDirectory(subdirectory, fileExtension);
             }
         }
 
-        private void ProcessDirectory(string targetDirectory)
+        private int CountFilesInDirectoryByFileExtension(string targetDirectory, string fileExtension)
         {
-            var count = this.CountFilesInDirectory(targetDirectory);
-            this.PrintNumberOfFilesFromDirectory(count, targetDirectory);
-
-            var fileEntries = Directory
-                .EnumerateFiles(targetDirectory)
-                .Where(filename =>
-                    fileExtensions.Contains(Path.GetExtension(filename))).ToList();
-
-            foreach (string filePath in fileEntries)
-            {
-                PrintFileNamesFromDirectory(filePath, targetDirectory);
-            }
-
-            var FileListDto = new FileListDto(count, fileEntries);
-            this.directoryFileList.Add(FileListDto);
-                
-            var subdirectoryEntries = Directory.GetDirectories(targetDirectory);
-            foreach (string subdirectory in subdirectoryEntries)
-            {
-                ProcessDirectory(subdirectory);
-            }
-        }
-
-        private int CountFilesInDirectory(string targetDirectory)
-        {
-            return Directory
-                .EnumerateFiles(targetDirectory)
-                .Count(filename =>
-                    fileExtensions.Contains(Path.GetExtension(filename)));
-        }
-
-        private int CountXlmsFilesInDirectory(string targetDirectory)
-        {
-            var fileExtension = ExcelFileExtensions.XLSM;
-
             return Directory
                 .EnumerateFiles(targetDirectory)
                 .Count(filename =>
                     fileExtension.Equals(Path.GetExtension(filename)));
-        }
-
-        private List<FileListDto> RemoveEntriesWithZeroFiles(List<FileListDto> fileList)
-        {
-            return fileList
-                .Where(item => item.NumberOfFiles != 0)
-                .Select(s => s).ToList();
         }
 
         private void PrintFileNamesFromDirectory(string filePath, string targetDirectory)

@@ -169,19 +169,12 @@ namespace ExcelServices
 
         private List<string> ListAllExcelFilesFromDirectory(string targetDirectory)
         {
-            var fileList = new List<string>();
-
-            var filesFromDirectory = this.fileService.ListAllExcelFilesFromDirectory(targetDirectory);
-
-            foreach (var files in filesFromDirectory)
-            {
-                foreach(var file in files.FileList)
-                {
-                    fileList.Add(file);
-                }
-            }
-
-            return fileList;
+            var filesFromDirectory = this.fileService.
+                ListAllFilesFromDirectoryByFileExtension(
+                targetDirectory,
+                OfficeFileExtensions.XLSX
+                );
+            return filesFromDirectory;
         }
 
         private void ClearFileList()
