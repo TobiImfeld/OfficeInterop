@@ -5,7 +5,6 @@ namespace ExcelServices
     public interface IFileService
     {
         List<string> ListAllFilesFromDirectoryByFileExtension(string filePath, string fileExtension);
-        List<string> ListAllXlsmExcelFilesFromDirectory(string filePath);
     }
 
     public static class OfficeFileExtensions
