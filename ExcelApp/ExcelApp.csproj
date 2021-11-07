@@ -168,7 +168,7 @@
       <Merger>$(SolutionDir)packages\ILMerge.3.0.41\tools\net452\ILMerge.exe</Merger>
     </PropertyGroup>
     <Message Text="Merge -&gt; $(OutputAssembly)" Importance="High" />
-    <Exec Command="&quot;$(Merger)&quot; /target:exe /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="&quot;$(Merger)&quot; /allowDup /target:exe /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
     <ItemGroup>
       <FilesToDelete Include="$(OutputPath)$(MSBuildProjectName).exe" />
       <FilesToDelete Include="$(OutputPath)*.pdb" />
