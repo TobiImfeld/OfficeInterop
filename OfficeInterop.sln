@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLineParser", "Comman
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.csproj", "{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordServices", "WordServices\WordServices.csproj", "{ACFA0075-BEC5-4AC9-8947-B977EB9591FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Utils\Common.csproj", "{30E782C7-AB9B-4BDE-A931-2184DC07A497}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACFA0075-BEC5-4AC9-8947-B977EB9591FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACFA0075-BEC5-4AC9-8947-B977EB9591FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACFA0075-BEC5-4AC9-8947-B977EB9591FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACFA0075-BEC5-4AC9-8947-B977EB9591FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

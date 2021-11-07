@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7DA3A20D-6A81-40E4-ADDD-ABD21A76D180}</ProjectGuid>
+    <ProjectGuid>{30E782C7-AB9B-4BDE-A931-2184DC07A497}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CommandLineParser</RootNamespace>
-    <AssemblyName>CommandLineParser</AssemblyName>
+    <RootNamespace>Utils</RootNamespace>
+    <AssemblyName>Utils</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommandLine, Version=2.8.0.0, Culture=neutral, PublicKeyToken=5a870481e358d379, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineParser.2.8.0\lib\net45\CommandLine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,28 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Options.cs" />
-    <Compile Include="IParserService.cs" />
-    <Compile Include="ParserService.cs" />
+    <Compile Include="CertificateStoreService.cs" />
+    <Compile Include="FileService.cs" />
+    <Compile Include="ICertificateStoreService.cs" />
+    <Compile Include="IFileService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ExcelServices\ExcelServices.csproj">
-      <Project>{B8D90AD2-5DF5-457E-9389-B36B45D25C26}</Project>
-      <Name>ExcelServices</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Logging\Logging.csproj">
-      <Project>{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}</Project>
+      <Project>{ebfb9d66-7cca-486b-8bae-899d849dbda9}</Project>
       <Name>Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WordServices\WordServices.csproj">
-      <Project>{acfa0075-bec5-4ac9-8947-b977eb9591fd}</Project>
-      <Name>WordServices</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

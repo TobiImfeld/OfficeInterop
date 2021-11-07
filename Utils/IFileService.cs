@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ExcelServices
+namespace Common
 {
     public interface IFileService
     {
@@ -14,5 +14,6 @@ namespace ExcelServices
         public const string XLSM = ".xlsm";
         public const string DOC = ".doc";
         public const string DOCX = ".docx";
+        public const string DOCM = ".docm";
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
-namespace ExcelServices
+namespace Common
 {
     public class CertificateStoreService : ICertificateStoreService
     {

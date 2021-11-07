@@ -1,4 +1,4 @@
-﻿namespace ExcelServices
+﻿namespace WordServices
 {
     public interface IWordService
     {

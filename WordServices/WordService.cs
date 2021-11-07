@@ -6,8 +6,9 @@ using System;
 using System.Runtime.InteropServices;
 using Microsoft.Office.Core;
 using System.IO;
+using Common;
 
-namespace ExcelServices
+namespace WordServices
 {
     public class WordService : IWordService
     {

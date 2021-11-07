@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ExcelServices
+namespace Common
 {
     public class FileService : IFileService
     {

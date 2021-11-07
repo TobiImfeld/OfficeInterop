@@ -100,6 +100,14 @@
       <Project>{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}</Project>
       <Name>Logging</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utils\Common.csproj">
+      <Project>{30e782c7-ab9b-4bde-a931-2184dc07a497}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WordServices\WordServices.csproj">
+      <Project>{acfa0075-bec5-4ac9-8947-b977eb9591fd}</Project>
+      <Name>WordServices</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExcelServices\ExcelServices.csproj">
@@ -152,6 +160,8 @@
       <MergeAssemblies Include="$(OutputPath)Serilog.Sinks.File.dll" />
       <MergeAssemblies Include="$(OutputPath)EPPlus.dll" />
       <MergeAssemblies Include="$(OutputPath)Microsoft.IO.RecyclableMemoryStream.dll" />
+      <MergeAssemblies Include="$(OutputPath)Utils.dll" />
+	  <MergeAssemblies Include="$(OutputPath)WordServices.dll" />
     </ItemGroup>
     <PropertyGroup>
       <OutputAssembly>$(OutputFullPath)$(MSBuildProjectName).Standalone.exe</OutputAssembly>
