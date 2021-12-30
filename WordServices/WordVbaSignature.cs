@@ -35,13 +35,18 @@ namespace WordServices
         public void GetSignatureFromZipPackage(string targetDirectory)
         {
             this.logger.Debug(targetDirectory);
+            this.GetVbaPackagePart(targetDirectory);
+            this.GetSignature();
+        }
 
+        private void GetVbaPackagePart(string targetDirectory)
+        {
             using (ZipPackage appx = Package.Open(targetDirectory, FileMode.Open, FileAccess.Read) as ZipPackage)
             {
                 var name = "/word/vbaProject.bin";
                 PackagePartCollection packagePartCollection = appx.GetParts();
                 var vbaProjectPart = packagePartCollection.FirstOrDefault(u => u.Uri.Equals(name));
-                var rel = vbaProjectPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
+                this.vbaProjectPart = (ZipPackagePart)vbaProjectPart; //Problem: Wenn der using Bereich verlassen wird, wird das Objekt abgeräumt. Problem auflösen!
             }
         }
 
