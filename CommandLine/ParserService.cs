@@ -47,7 +47,7 @@ namespace CommandLineParser
                 SignOneVbaExcelFileOptions,
                 DeleteSignatureFromOneVbaExcelFileOptions,
                 DeleteAllExcelVbaSignaturesOptions,
-                SignAllDocxWordOptions>(args)
+                SignAllDocmWordOptions>(args)
                  .MapResult(
                  (PathOptions opts) => this.SetPathToFiles(opts),
                  (CertificateNameOptions opts) => this.SetCertificateName(opts),
@@ -57,7 +57,7 @@ namespace CommandLineParser
                  (SignOneVbaExcelFileOptions opts) => this.SignOneVbaExcelFile(opts),
                  (DeleteSignatureFromOneVbaExcelFileOptions opts) => this.DeleteDigitalSignatureFromOneVbaExcelFile(opts),
                  (DeleteAllExcelVbaSignaturesOptions opts) => this.DeleteAllExcelVbaSignatures(opts),
-                 (SignAllDocxWordOptions opts) => this.SignAllDocxWordFiles(opts),
+                 (SignAllDocmWordOptions opts) => this.SignAllWordFiles(opts),
                  errs => this.HandleParseError(errs)
                  );
         }
@@ -239,7 +239,7 @@ namespace CommandLineParser
             return exitCode;
         }
 
-        private int SignAllDocxWordFiles(SignAllDocxWordOptions options)
+        private int SignAllWordFiles(SignAllDocmWordOptions options)
         {
             var exitCode = 0;
 

@@ -70,9 +70,9 @@ namespace CommandLineParser
         public string FilePath { get; set; }
     }
 
-    //example command: "signalldocxword -p FilePath -c CertificateName"
-    [Verb("signalldocxword", HelpText = "Set certificate name")]
-    public class SignAllDocxWordOptions
+    //example command: "signalldocmword -p FilePath -c CertificateName"
+    [Verb("signalldocmword", HelpText = "Set certificate name")]
+    public class SignAllDocmWordOptions
     {
         [Option('p', "filePath", Required = false)]
         public string FilePath { get; set; }

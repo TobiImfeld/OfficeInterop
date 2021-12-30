@@ -15,15 +15,18 @@ namespace WordServices
         private readonly ILogger logger;
         private readonly ICertificateStoreService certificateStoreService;
         private readonly IFileService fileService;
+        private readonly IWordVbaSignatureService wordVbaSignatureService;
 
         public WordService(
             ILoggerFactory loggerFactory,
             ICertificateStoreService certificateStoreService,
-            IFileService fileService)
+            IFileService fileService,
+            IWordVbaSignatureService wordVbaSignatureService)
         {
             this.logger = loggerFactory.Create<WordService>();
             this.certificateStoreService = certificateStoreService;
             this.fileService = fileService;
+            this.wordVbaSignatureService = wordVbaSignatureService;
         }
 
         public void SignAllWordFiles(string targetDirectory, string certName)
@@ -31,19 +34,13 @@ namespace WordServices
             var fileList = this.ListAllWordFilesFromDirectory(targetDirectory);
             var cert = this.certificateStoreService.GetCertificateFromStore(certName);
 
-            if (cert == null)
-            {
-                fileList.Clear();
-            }
-            else
-            {
-                foreach (var file in fileList)
-                {
-                    this.AddDigitalSignature(file, cert);
-                }
 
-                fileList.Clear();
+            foreach (var file in fileList)
+            {
+                this.wordVbaSignatureService.GetSignatureFromZipPackage(file);
             }
+
+            fileList.Clear();
         }
 
         private List<string> ListAllWordFilesFromDirectory(string targetDirectory)
@@ -51,7 +48,7 @@ namespace WordServices
             return this.fileService.
                 ListAllFilesFromDirectoryByFileExtension(
                 targetDirectory,
-                OfficeFileExtensions.DOCX
+                OfficeFileExtensions.DOCM
                 );
         }
 

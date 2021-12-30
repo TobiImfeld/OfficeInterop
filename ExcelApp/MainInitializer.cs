@@ -53,6 +53,7 @@ namespace ExcelApp
                 .AddTransient<IFileService, FileService>()
                 .AddTransient<IExcelVbaService, ExcelVbaService>()
                 .AddTransient<IWordService, WordService>()
+                .AddTransient<IWordVbaSignatureService, WordVbaSignatureService>()
                 .BuildServiceProvider();
 
             this.loggerFactory = serviceProvider.GetService<ILoggerFactory>();
