@@ -36,39 +36,12 @@ namespace WordServices
         {
             this.logger.Debug(targetDirectory);
 
-            using (var file = File.OpenRead(targetDirectory))
-            using (var zip = new ZipArchive(file, ZipArchiveMode.Read))
-            {
-                var name = "vbaProject.bin";
-                var vbaPart = zip.Entries.FirstOrDefault(e => e.Name.Equals(name));
-
-                foreach (var entry in zip.Entries)
-                {
-                    using (var stream = entry.Open())
-                    {
-                        // do whatever we want with stream
-                        // ...
-                    }
-                }
-            }
-
-            
-
             using (ZipPackage appx = Package.Open(targetDirectory, FileMode.Open, FileAccess.Read) as ZipPackage)
             {
                 var name = "/word/vbaProject.bin";
                 PackagePartCollection packagePartCollection = appx.GetParts();
                 var vbaProjectPart = packagePartCollection.FirstOrDefault(u => u.Uri.Equals(name));
                 var rel = vbaProjectPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
-
-
-                //foreach (ZipPackagePart zipPackagePart in packagePartCollection)
-                //{
-                //    Stream stream = zipPackagePart.GetStream();
-                //    //todo check mime type of the zipPackagePart, perform Extract if it's ZIP
-                //    //Extract(stream);
-                //    // Add a code to read the files present in the ZipPackagePart which is also a ZipPackage
-                //}
             }
         }
 
