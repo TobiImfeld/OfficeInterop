@@ -5,8 +5,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using Logging;
 using Common;
-using System.Collections.Generic;
-using System.IO.Compression;
 
 namespace WordServices
 {
@@ -15,54 +13,49 @@ namespace WordServices
         private readonly ILogger logger;
         private readonly IFileService fileService;
         private const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
-        private ZipPackagePart vbaProjectPart = null;
-        private X509Certificate2 certificate = null;
-        private SignedCms verifier = null;
-        private List<string> fileList;
 
         public WordVbaSignatureService(ILoggerFactory loggerFactory, IFileService fileService)
         {
             this.logger = loggerFactory.Create<WordVbaSignatureService>();
             this.fileService = fileService;
-            this.GetSignature();
         }
 
-        public void SetPathToFiles(string targetDirectory)
+        public X509Certificate2 GetSignatureFromZipPackage(string targetDirectory)
         {
-            this.fileList = this.ListAllWordFilesFromDirectory(targetDirectory);
-        }
-
-        public void GetSignatureFromZipPackage(string targetDirectory)
-        {
+            X509Certificate2 certificate = null;
             this.logger.Debug(targetDirectory);
-            this.GetVbaPackagePart(targetDirectory);
-            this.GetSignature();
+            certificate = this.GetSignature(targetDirectory);
+            return certificate;
         }
 
-        private void GetVbaPackagePart(string targetDirectory)
+        private X509Certificate2 GetSignature(string targetDirectory)
         {
             using (ZipPackage appx = Package.Open(targetDirectory, FileMode.Open, FileAccess.Read) as ZipPackage)
             {
                 var name = "/word/vbaProject.bin";
                 PackagePartCollection packagePartCollection = appx.GetParts();
                 var vbaProjectPart = packagePartCollection.FirstOrDefault(u => u.Uri.Equals(name));
-                this.vbaProjectPart = (ZipPackagePart)vbaProjectPart; //Problem: Wenn der using Bereich verlassen wird, wird das Objekt abgeräumt. Problem auflösen!
+
+                return this.ReadSignature((ZipPackagePart)vbaProjectPart);
             }
         }
 
-        private void GetSignature()
+        private X509Certificate2 ReadSignature(ZipPackagePart vbaProjectPart)
         {
-            if (this.vbaProjectPart == null)
+            X509Certificate2 certificate = null;
+            SignedCms verifier = null;
+
+            if (vbaProjectPart == null)
             {
-                return;
+                return null;
             }
 
-            var rel = this.vbaProjectPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
+            var rel = vbaProjectPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
 
             if (rel != null)
             {
                 var uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
-                var part = this.vbaProjectPart.Package.GetPart(uri);
+                var part = vbaProjectPart.Package.GetPart(uri);
 
                 var stream = part.GetStream();
                 BinaryReader br = new BinaryReader(stream);
@@ -90,7 +83,7 @@ namespace WordServices
                         switch (id)
                         {
                             case 0x20:
-                                this.certificate = new X509Certificate2(value);
+                                certificate = new X509Certificate2(value);
                                 break;
                             default:
                                 break;
@@ -105,29 +98,18 @@ namespace WordServices
                 ushort rgchProjectNameBuffer = br.ReadUInt16();
                 ushort rgchTimestampBuffer = br.ReadUInt16();
 
-                this.verifier = new SignedCms();
-                this.verifier.Decode(signature);
+                verifier = new SignedCms();
+                verifier.Decode(signature);
+
+                return certificate;
             }
             else
             {
-                this.certificate = null;
-                this.verifier = null;
+                certificate = null;
+                verifier = null;
+
+                return certificate;
             }
-        }
-
-        private List<string> ListAllWordFilesFromDirectory(string targetDirectory)
-        {
-            var filesFromDirectory = this.fileService.
-                ListAllFilesFromDirectoryByFileExtension(
-                targetDirectory,
-                OfficeFileExtensions.DOCM
-                );
-            return filesFromDirectory;
-        }
-
-        private void ClearFileList()
-        {
-            this.fileList.Clear();
         }
     }
 }
