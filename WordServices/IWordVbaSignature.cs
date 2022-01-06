@@ -4,6 +4,7 @@ namespace WordServices
 {
     public interface IWordVbaSignatureService
     {
-        X509Certificate2 GetSignatureFromZipPackage(string targetDirectory);
+        void AddDigitalSignature(string file, X509Certificate2 cert);
     }
 }
+

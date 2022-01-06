@@ -31,14 +31,13 @@ namespace WordServices
 
         public void SignAllWordFiles(string targetDirectory, string certName)
         {
-            X509Certificate2 certificate = null;
             var fileList = this.ListAllWordFilesFromDirectory(targetDirectory);
             var cert = this.certificateStoreService.GetCertificateFromStore(certName);
 
 
             foreach (var file in fileList)
             {
-                certificate = this.wordVbaSignatureService.GetSignatureFromZipPackage(file);
+                this.wordVbaSignatureService.AddDigitalSignature(file, cert);
             }
 
             fileList.Clear();
@@ -63,7 +62,7 @@ namespace WordServices
                 wordApp = new Application();
                 document = wordApp.Documents.Open(file);
 
-                wordApp.Activate();
+                //wordApp.Activate();
 
                 //wordApp.DisplayAlerts = WdAlertLevel.wdAlertsMessageBox;
                 //wordApp.Visible = false;
