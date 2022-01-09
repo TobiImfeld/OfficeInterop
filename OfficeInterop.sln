@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordServices", "WordService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Utils\Common.csproj", "{30E782C7-AB9B-4BDE-A931-2184DC07A497}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaProjectUtils", "VbaProjectUtils\VbaProjectUtils.csproj", "{8D631D76-0976-4ECC-8405-841ACE9593C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordVba", "WordVba\WordVba.csproj", "{D94EDADC-D531-4367-A9CF-E3EA4C8C9A8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30E782C7-AB9B-4BDE-A931-2184DC07A497}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D631D76-0976-4ECC-8405-841ACE9593C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D631D76-0976-4ECC-8405-841ACE9593C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D631D76-0976-4ECC-8405-841ACE9593C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D631D76-0976-4ECC-8405-841ACE9593C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D94EDADC-D531-4367-A9CF-E3EA4C8C9A8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D94EDADC-D531-4367-A9CF-E3EA4C8C9A8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D94EDADC-D531-4367-A9CF-E3EA4C8C9A8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D94EDADC-D531-4367-A9CF-E3EA4C8C9A8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
