@@ -4,16 +4,20 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using Logging;
+using WordServices.Dto;
+using System.Text;
 
 namespace WordServices
 {
     public class WordVbaSignatureService : IWordVbaSignatureService
     {
         public X509Certificate2 Certificate { get; internal set; }
+        public int CodePage { get; internal set; }
 
         private readonly ILogger logger;
         private const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
         private const string schemaRelVba = "http://schemas.microsoft.com/office/2006/relationships/vbaProject";
+        private const string schemaRelVbaData = "http://schemas.microsoft.com/office/2006/relationships/wordVbaData";
 
         public WordVbaSignatureService(ILoggerFactory loggerFactory)
         {
@@ -34,9 +38,9 @@ namespace WordServices
                 var doc = "/word/document.xml";
                 PackagePartCollection packagePartCollection = appx.GetParts();
                 var vbaProjectPart = (ZipPackagePart)packagePartCollection.FirstOrDefault(u => u.Uri.Equals(name));
-                var document = (ZipPackagePart)packagePartCollection.FirstOrDefault(u => u.Uri.Equals(doc));
+                var documentPart = (ZipPackagePart)packagePartCollection.FirstOrDefault(u => u.Uri.Equals(doc));
 
-                this.GetProject(document);
+                var proj = this.GetProject(documentPart);
 
                 var currentCert = this.ReadSignature(vbaProjectPart);
                 
@@ -132,137 +136,209 @@ namespace WordServices
             }
         }
 
-        private void GetProject(ZipPackagePart document)
+        private WordVbaProject GetProject(ZipPackagePart documentPart)
         {
-            int codePage = 0;
+            var vbaProj = new WordVbaProject();
+            var codePage = 0;
 
-            var rel = document.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
+            if (documentPart == null)
+            {
+                return null;
+            }
+
+            var rel = documentPart.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
 
             if (rel != null)
             {
                 var uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
-                var part = document.Package.GetPart(uri);
+                var part = documentPart.Package.GetPart(uri);
 
                 var stream = part.GetStream();
                 BinaryReader br = new BinaryReader(stream);
 
                 bool terminate = false;
 
-                var len = br.BaseStream.Length;
-
                 while (br.BaseStream.Position < br.BaseStream.Length && terminate == false)
                 {
-                    uint id = br.ReadUInt32();
+                    uint id = br.ReadUInt16();
                     uint size = br.ReadUInt32();
                     switch (id)
                     {
+                        case 0x01:
+                            vbaProj.SystemKind = (eSyskind)br.ReadUInt32();
+                                uint test = br.ReadUInt32();
+                            break;
+                        case 0x02:
+                            vbaProj.Lcid = (int)br.ReadUInt32();
+                            break;
                         case 0x03:
-                            codePage = (int)br.ReadUInt16();
+                            this.CodePage = (int)br.ReadUInt16(); //2055 de-CH
+                            this.CodePage = 2055;
+                            vbaProj.CodePage = this.CodePage;
+                            break;
+                        case 0x04:
+                            vbaProj.Name = GetString(br, size);
+                            break;
+                        case 0x05:
+                            vbaProj.Description = GetUnicodeString(br, size);
+                            break;
+                        case 0x06:
+                            vbaProj.HelpFile1 = GetString(br, size);
+                            break;
+                        case 0x3D:
+                            vbaProj.HelpFile2 = GetString(br, size);
+                            break;
+                        case 0x07:
+                            vbaProj.HelpContextID = (int)br.ReadUInt32();
+                            break;
+                        case 0x08:
+                            vbaProj.LibFlags = (int)br.ReadUInt32();
+                            break;
+                        case 0x09:
+                            vbaProj.MajorVersion = (int)br.ReadUInt32();
+                            vbaProj.MinorVersion = (int)br.ReadUInt16();
+                            break;
+                        case 0x0C:
+                            vbaProj.Constants = GetUnicodeString(br, size);
+                            break;
+                        case 0x0D:
+                            uint sizeLibID = br.ReadUInt32();
+                            //var regRef = new ExcelVbaReference();
+                            //regRef.Name = referenceName;
+                            //regRef.ReferenceRecordID = id;
+                            //regRef.Libid = GetString(br, sizeLibID);
+                            //uint reserved1 = br.ReadUInt32();
+                            //ushort reserved2 = br.ReadUInt16();
+                            //References.Add(regRef);
+                            break;
+                        case 0x0E:
+                            //var projRef = new ExcelVbaReferenceProject();
+                            //projRef.ReferenceRecordID = id;
+                            //projRef.Name = referenceName;
+                            //sizeLibID = br.ReadUInt32();
+                            //projRef.Libid = GetString(br, sizeLibID);
+                            //sizeLibID = br.ReadUInt32();
+                            //projRef.LibIdRelative = GetString(br, sizeLibID);
+                            //projRef.MajorVersion = br.ReadUInt32();
+                            //projRef.MinorVersion = br.ReadUInt16();
+                            //References.Add(projRef);
+                            break;
+                        case 0x0F:
+                            ushort modualCount = br.ReadUInt16();
+                            break;
+                        case 0x13:
+                            ushort cookie = br.ReadUInt16();
+                            break;
+                        case 0x14:
+                            vbaProj.LcidInvoke = (int)br.ReadUInt32();
+                            break;
+                        case 0x16:
+                            //referenceName = GetUnicodeString(br, size);
+                            break;
+                        case 0x19:
+                            //currentModule = new ExcelVBAModule();
+                            //currentModule.Name = GetUnicodeString(br, size);
+                            //Modules.Add(currentModule);
+                            break;
+                        case 0x1A:
+                            //currentModule.streamName = GetUnicodeString(br, size);
+                            break;
+                        case 0x1C:
+                            //currentModule.Description = GetUnicodeString(br, size);
+                            break;
+                        case 0x1E:
+                            //currentModule.HelpContext = (int)br.ReadUInt32();
+                            break;
+                        case 0x21:
+                        case 0x22:
+                            break;
+                        case 0x2B:      //Modul Terminator
+                            break;
+                        case 0x2C:
+                            //currentModule.Cookie = br.ReadUInt16();
+                            break;
+                        case 0x31:
+                            //currentModule.ModuleOffset = br.ReadUInt32();
                             break;
                         case 0x10:
                             terminate = true;
                             break;
+                        case 0x30:
+                            //var extRef = (ExcelVbaReferenceControl)currentRef;
+                            //var sizeExt = br.ReadUInt32();
+                            //extRef.LibIdExternal = GetString(br, sizeExt);
+
+                            //uint reserved4 = br.ReadUInt32();
+                            //ushort reserved5 = br.ReadUInt16();
+                            //extRef.OriginalTypeLib = new Guid(br.ReadBytes(16));
+                            //extRef.Cookie = br.ReadUInt32();
+                            break;
+                        case 0x33:
+                            //currentRef = new ExcelVbaReferenceControl();
+                            //currentRef.ReferenceRecordID = id;
+                            //currentRef.Name = referenceName;
+                            //currentRef.Libid = GetString(br, size);
+                            //References.Add(currentRef);
+                            break;
+                        case 0x2F:
+                            //var contrRef = (ExcelVbaReferenceControl)currentRef;
+                            //contrRef.ReferenceRecordID = id;
+
+                            //var sizeTwiddled = br.ReadUInt32();
+                            //contrRef.LibIdTwiddled = GetString(br, sizeTwiddled);
+                            //var r1 = br.ReadUInt32();
+                            //var r2 = br.ReadUInt16();
+
+                            break;
+                        case 0x25:
+                            //currentModule.ReadOnly = true;
+                            break;
+                        case 0x28:
+                            //currentModule.Private = true;
+                            break;
                         default:
                             break;
                     }
-
                 }
+
+                this.logger.Debug($"CodePage: {this.CodePage}, SystemKind: {vbaProj.SystemKind} CodePage: {codePage}");
+
+                return vbaProj;
+            }
+            else
+            {
+                return null;
             }
         }
-                //private byte[] SignProject(ZipPackagePart vbaProjectPart)
-                //{
-                //    if (!Certificate.HasPrivateKey)
-                //    {
-                //        //throw (new InvalidOperationException("The certificate doesn't have a private key"));
-                //        Certificate = null;
-                //        return null;
-                //    }
-                //    var hash = GetContentHash(vbaProjectPart);
 
-                //    //BinaryWriter bw = new BinaryWriter(new MemoryStream());
-                //    //bw.Write((byte)0x30); //Constructed Type 
-                //    //bw.Write((byte)0x32); //Total length
-                //    //bw.Write((byte)0x30); //Constructed Type 
-                //    //bw.Write((byte)0x0E); //Length SpcIndirectDataContent
-                //    //bw.Write((byte)0x06); //Oid Tag Indentifier 
-                //    //bw.Write((byte)0x0A); //Lenght OId
-                //    //bw.Write(new byte[] { 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x01, 0x1D }); //Encoded Oid 1.3.6.1.4.1.311.2.1.29
-                //    //bw.Write((byte)0x04);   //Octet String Tag Identifier
-                //    //bw.Write((byte)0x00);   //Zero length
+        private string GetString(BinaryReader br, uint size)
+        {
+            var str = GetString(br, size, Encoding.GetEncoding(this.CodePage));
+            return str;
+        }
 
-                //    //bw.Write((byte)0x30); //Constructed Type (DigestInfo)
-                //    //bw.Write((byte)0x20); //Length DigestInfo
-                //    //bw.Write((byte)0x30); //Constructed Type (Algorithm)
-                //    //bw.Write((byte)0x0C); //length AlgorithmIdentifier
-                //    //bw.Write((byte)0x06); //Oid Tag Indentifier 
-                //    //bw.Write((byte)0x08); //Lenght OId
-                //    //bw.Write(new byte[] { 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x02, 0x05 }); //Encoded Oid for 1.2.840.113549.2.5 (AlgorithmIdentifier MD5)
-                //    //bw.Write((byte)0x05);   //Null type identifier
-                //    //bw.Write((byte)0x00);   //Null length
-                //    //bw.Write((byte)0x04);   //Octet String Identifier
-                //    //bw.Write((byte)hash.Length);   //Hash length
-                //    //bw.Write(hash);                //Content hash
+        private string GetString(BinaryReader br, uint size, Encoding enc)
+        {
+            if (size > 0)
+            {
+                byte[] byteTemp = new byte[size];
+                byteTemp = br.ReadBytes((int)size);
+                var str = enc.GetString(byteTemp);
+                return str;
+            }
+            else
+            {
+                return "";
+            }
+        }
 
-                //    //ContentInfo contentInfo = new ContentInfo(((MemoryStream)bw.BaseStream).ToArray());
-                //    //contentInfo.ContentType.Value = "1.3.6.1.4.1.311.2.1.4";
-
-                //    //Verifier = new SignedCms(contentInfo);
-                //    //var signer = new CmsSigner(Certificate);
-                //    //Verifier.ComputeSignature(signer, false);
-                //    //return Verifier.Encode();
-                //    return null;
-                //}
-
-                //private byte[] GetContentHash(ZipPackagePart vbaProjectPart)
-                //{
-                //    //MS-OVBA 2.4.2
-                //    var enc = System.Text.Encoding.GetEncoding(vbaProjectPart.CodePage);
-                //    BinaryWriter bw = new BinaryWriter(new MemoryStream());
-                //    bw.Write(enc.GetBytes(vbaProjectPart.Name));
-                //    bw.Write(enc.GetBytes(vbaProjectPart.Constants));
-                //    foreach (var reference in vbaProjectPart.References)
-                //    {
-                //        if (reference.ReferenceRecordID == 0x0D)
-                //        {
-                //            bw.Write((byte)0x7B);
-                //        }
-                //        if (reference.ReferenceRecordID == 0x0E)
-                //        {
-                //            //var r = (ExcelVbaReferenceProject)reference;
-                //            //BinaryWriter bwTemp = new BinaryWriter(new MemoryStream());
-                //            //bwTemp.Write((uint)r.Libid.Length);
-                //            //bwTemp.Write(enc.GetBytes(r.Libid));              
-                //            //bwTemp.Write((uint)r.LibIdRelative.Length);
-                //            //bwTemp.Write(enc.GetBytes(r.LibIdRelative));
-                //            //bwTemp.Write(r.MajorVersion);
-                //            //bwTemp.Write(r.MinorVersion);
-                //            foreach (byte b in BitConverter.GetBytes((uint)reference.Libid.Length))  //Length will never be an UInt with 4 bytes that aren't 0 (> 0x00FFFFFF), so no need for the rest of the properties.
-                //            {
-                //                if (b != 0)
-                //                {
-                //                    bw.Write(b);
-                //                }
-                //                else
-                //                {
-                //                    break;
-                //                }
-                //            }
-                //        }
-                //    }
-                //    foreach (var module in proj.Modules)
-                //    {
-                //        var lines = module.Code.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                //        foreach (var line in lines)
-                //        {
-                //            if (!line.StartsWith("attribute", StringComparison.OrdinalIgnoreCase))
-                //            {
-                //                bw.Write(enc.GetBytes(line));
-                //            }
-                //        }
-                //    }
-                //    var buffer = (bw.BaseStream as MemoryStream).ToArray();
-                //    var hp = System.Security.Cryptography.MD5.Create();
-                //    return hp.ComputeHash(buffer);
-                //}
+        private string GetUnicodeString(BinaryReader br, uint size)
+        {
+            string s = GetString(br, size);
+            int reserved = br.ReadUInt16();
+            uint sizeUC = br.ReadUInt32();
+            string sUC = GetString(br, sizeUC, Encoding.Unicode);
+            return sUC.Length == 0 ? s : sUC;
+        }
     }
 }

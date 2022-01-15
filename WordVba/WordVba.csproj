@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VbaCompression.cs" />
+    <Compile Include="WordVbaProject.cs" />
     <Compile Include="WordVbaProtection.cs" />
     <Compile Include="WordVbaReferenceProject.cs" />
     <Compile Include="WordVbaReferenceControl.cs" />
