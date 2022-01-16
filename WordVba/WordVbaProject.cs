@@ -18,6 +18,7 @@ namespace WordVba
     using System.Security.Cryptography;
     using System.Text.RegularExpressions;
     using OfficeOpenXml.Utils.CompundDocument;
+    using System.IO.Packaging;
 
 
     /// <summary>
@@ -27,6 +28,8 @@ namespace WordVba
     {
         const string schemaRelVba = "http://schemas.microsoft.com/office/2006/relationships/vbaProject";
         internal const string PartUri = @"/word/vbaProject.bin";
+        ZipPackagePart vbaProjectPart = null;
+
         #region Classes & Enums
         /// <summary>
         /// Type of system where the VBA project was created.
@@ -40,17 +43,17 @@ namespace WordVba
         }
 
         #endregion
-        internal WordVbaProject(ExcelWorkbook wb)
+        internal WordVbaProject(ZipPackagePart vbaProjectPart)
         {
-            _wb = wb;
-            _pck = _wb._package.Package;
-            References = new WordVbaReferenceCollection();
-            Modules = new ExcelVbaModuleCollection(this);
-            var rel = _wb.Part.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
+            this.vbaProjectPart = vbaProjectPart;
+            this.References = new WordVbaReferenceCollection();
+            this.Modules = new ExcelVbaModuleCollection(this);
+
+            var rel = this.vbaProjectPart.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
             if (rel != null)
             {
-                this.Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
-                Part = _pck.GetPart(Uri);
+                this.Uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                Part = this.vbaProjectPart.Package.GetPart(Uri);
                 GetProject();
             }
             else
@@ -1023,13 +1026,13 @@ namespace WordVba
             MajorVersion = 1361024421;
             MinorVersion = 6;
             HelpContextID = 0;
-            Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes = GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+            Modules.Add(new WordVbaModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes = GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
             foreach (var sheet in _wb.Worksheets)
             {
                 var name = GetModuleNameFromWorksheet(sheet);
                 if (!Modules.Exists(name))
                 {
-                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Modules.Add(new WordVbaModule(sheet.CodeNameChange) { Name = name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 }
             }
             _protection = new WordVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
