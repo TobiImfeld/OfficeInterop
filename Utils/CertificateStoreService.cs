@@ -25,8 +25,8 @@ namespace Common
                 store.Open(OpenFlags.ReadOnly);
 
                 X509Certificate2Collection certCollection = store.Certificates;
-                X509Certificate2Collection currentCerts = certCollection.Find(X509FindType.FindByIssuerName, certName, false);
-                X509Certificate2Collection signingCerts = currentCerts.Find(X509FindType.FindByIssuerName, certName, false);
+                X509Certificate2Collection currentCerts = certCollection.Find(X509FindType.FindBySubjectName, certName, false);
+                X509Certificate2Collection signingCerts = currentCerts.Find(X509FindType.FindBySubjectName, certName, false);
 
                 if (signingCerts.Count == 0)
                 {
@@ -35,13 +35,15 @@ namespace Common
                 }
                 else
                 {
+                    string sRegexMatchEverythingTillTheFirstComma = @"^.*?(?=,)";
                     string sPattern = @"CN=";
 
                     foreach (var cert in signingCerts)
                     {
-                        var issuerName = Regex.Replace(cert.Issuer, sPattern, string.Empty);
+                        var cnSubjectValue = Regex.Match(cert.Subject, sRegexMatchEverythingTillTheFirstComma);
+                        var subjectName = Regex.Replace(cnSubjectValue.Value, sPattern, string.Empty);
 
-                        if (issuerName.Equals(certName))
+                        if (subjectName.Equals(certName))
                         {
                             this.logger.Debug($"Found certificate: {cert} Certificates list has: {signingCerts.Count} inserts");
                             return cert;
