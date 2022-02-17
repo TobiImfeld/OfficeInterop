@@ -3,6 +3,7 @@ using ExcelServices;
 using Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -254,16 +255,50 @@ namespace CommandLineParser
             string optionsAsDelimiterPattern = @"(\-[a-z])";
             string removeWhiteSpaceAtStartOrEndPattern = @"^\s+|\s+$";
             string empty = string.Empty;
+            string file;
 
             string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
             string[] arguments = new string[substrings.Length];
 
             for(int i = 0; i < substrings.Length; i++)
             {
+                var removedDoubleQuotes = substrings[i].Trim('"');
                 arguments[i] = Regex.Replace(substrings[i], removeWhiteSpaceAtStartOrEndPattern, empty);
             }
 
+            for(int i = 0; i< arguments.Length; i++)
+            {
+                if(Regex.IsMatch(arguments[i], ":"))
+                {
+                    file = arguments[i];
+                    this.FoundInvalidFileNameChar(arguments[i]); //Parser abbrechen und Ausgabe auf Konsole und ins Log mit illegalem zeichen!
+                }
+            }
+
+
             return arguments;
+        }
+
+        private bool FoundInvalidFileNameChar(string file)
+        {
+            var invalidFileNameChar = false;
+            var invalidChars = Path.GetInvalidFileNameChars();
+
+            foreach(var chr in file)
+            {
+                foreach(var invChr in invalidChars)
+                {
+                    if(Regex.IsMatch(chr.ToString(), invChr.ToString()))
+                    {
+                        this.logger.Debug("Foud illegal char in file name: {0}", chr.ToString());
+                        Console.WriteLine("Foud illegal char in file name: {0}", chr.ToString());
+                        invalidFileNameChar = true;
+                        return invalidFileNameChar;
+                    }
+                }  
+            }
+
+            return invalidFileNameChar;
         }
     }
 }
