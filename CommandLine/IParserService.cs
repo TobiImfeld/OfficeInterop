@@ -1,7 +1,14 @@
 ﻿namespace CommandLineParser
 {
+    public enum ExitCode
+    {
+        OK,
+        Stop,
+        Error = -1
+    }
+
     public interface IParserService
     {
-        int ParseInput(string input);
+        ExitCode ParseInput(string input);
     }
 }

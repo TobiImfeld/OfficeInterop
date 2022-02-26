@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParser;
+using System;
 using System.Configuration;
 
 namespace ExcelApp
@@ -28,7 +29,7 @@ namespace ExcelApp
             {
                 var input = Console.ReadLine();
                 var exitCode = parser.ParseInput(input);
-                if(exitCode == 1)
+                if(exitCode == ExitCode.Stop)
                 {
                     run = false;
                 }

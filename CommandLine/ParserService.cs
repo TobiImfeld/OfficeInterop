@@ -27,13 +27,24 @@ namespace CommandLineParser
             parser = new Parser();
         }
 
-        public int ParseInput(string input)
+        public ExitCode ParseInput(string input)
         {
-            var args = this.SplitInputStringIntoArgumentsArray(input);
-            return this.ParseInputArguments(args);
+            ExitCode exitCode = ExitCode.OK;
+
+            exitCode = this.CheckInputForInvalidChars(input);
+
+            if(exitCode == ExitCode.OK)
+            {
+                var args = this.SplitInputStringIntoArgumentsArray(input);
+                return this.ParseInputArguments(args);
+            }
+            else
+            {
+                return exitCode;
+            }
         }
 
-        private int ParseInputArguments(string[] args)
+        private ExitCode ParseInputArguments(string[] args)
         {
             return this.parser.ParseArguments<
                 PathOptions,
@@ -57,10 +68,8 @@ namespace CommandLineParser
                  );
         }
 
-        private int SetPathToFiles(PathOptions options)
+        private ExitCode SetPathToFiles(PathOptions options)
         {
-            var exitCode = 0;
-
             var path = options.PathToFiles;
             if (path != null)
             {
@@ -69,17 +78,14 @@ namespace CommandLineParser
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int SetCertificateName(CertificateNameOptions options)
+        private ExitCode SetCertificateName(CertificateNameOptions options)
         {
-            var exitCode = 0;
-
             var certName = options.CertName;
             if (certName != null)
             {
@@ -88,17 +94,14 @@ namespace CommandLineParser
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int SignAllVbaExcelFiles(SignAllVbaOptions options)
+        private ExitCode SignAllVbaExcelFiles(SignAllVbaOptions options)
         {
-            var exitCode = 0;
-
             var certName = options.CertName;
             var filePath = options.FilePath;
 
@@ -114,23 +117,19 @@ namespace CommandLineParser
                 {
                     this.logger.Debug($"Execution stopped with Exception: {ex}");
                     Console.WriteLine($"Execution stopped with Exception!");
-                    exitCode = -1;
-                    return exitCode;
+                    return ExitCode.Error;
                 }
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int SignOneVbaExcelFile(SignOneVbaExcelFileOptions options)
+        private ExitCode SignOneVbaExcelFile(SignOneVbaExcelFileOptions options)
         {
-            var exitCode = 0;
-
             var fileName = options.FileName;
             var certName = options.CertName;
 
@@ -146,30 +145,30 @@ namespace CommandLineParser
                 {
                     this.logger.Debug($"Execution stopped with Exception: {ex}");
                     Console.WriteLine($"Execution stopped with Exception!");
-                    exitCode = -1;
-                    return exitCode;
+                    return ExitCode.Error;
                 }
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int StopApp(StopOptions options)
+        private ExitCode StopApp(StopOptions options)
         {
-            var value = options.Stop;
-            this.logger.Debug($"stop= {value}");
-            return value;
+            if(options.Stop == ExitCode.Stop)
+            {
+                this.logger.Debug($"stop= {options.Stop}");
+                return ExitCode.Stop;
+            }
+
+            return ExitCode.OK;
         }
 
-        private int DeleteAllDigitalSignatures(DeleteSignatureOptions options)
+        private ExitCode DeleteAllDigitalSignatures(DeleteSignatureOptions options)
         {
-            var exitCode = 0;
-
             var path = options.PathToFiles;
             if (path != null)
             {
@@ -178,17 +177,14 @@ namespace CommandLineParser
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int DeleteDigitalSignatureFromOneVbaExcelFile(DeleteSignatureFromOneVbaExcelFileOptions options)
+        private ExitCode DeleteDigitalSignatureFromOneVbaExcelFile(DeleteSignatureFromOneVbaExcelFileOptions options)
         {
-            var exitCode = 0;
-
             var fileName = options.FileName;
             if (fileName != null)
             {
@@ -197,17 +193,14 @@ namespace CommandLineParser
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int DeleteAllExcelVbaSignatures(DeleteAllExcelVbaSignaturesOptions options)
+        private ExitCode DeleteAllExcelVbaSignatures(DeleteAllExcelVbaSignaturesOptions options)
         {
-            var exitCode = 0;
-
             var filePath = options.FilePath;
             if (filePath != null)
             {
@@ -221,23 +214,19 @@ namespace CommandLineParser
                 {
                     this.logger.Debug($"Execution stopped with Exception: {ex}");
                     Console.WriteLine($"Execution stopped with Exception!");
-                    exitCode = -1;
-                    return exitCode;
+                    return ExitCode.Error;
                 }
             }
             else
             {
-                exitCode = -1;
-                return exitCode;
+                return ExitCode.Error;
             }
 
-            return exitCode;
+            return ExitCode.OK;
         }
 
-        private int HandleParseError(IEnumerable<Error> errs)
+        private ExitCode HandleParseError(IEnumerable<Error> errs)
         {
-            var result = -2;
-
             this.logger.Debug("Number of errors: {0}", errs.Count());
             Console.WriteLine("Number of errors: {0}", errs.Count());
 
@@ -247,7 +236,7 @@ namespace CommandLineParser
                 Console.WriteLine("Parser error: {0}", error.Tag.ToString());
             }
 
-            return result;
+            return ExitCode.Error;
         }
 
         private string[] SplitInputStringIntoArgumentsArray(string input)
@@ -277,6 +266,12 @@ namespace CommandLineParser
 
 
             return arguments;
+        }
+
+
+        private ExitCode CheckInputForInvalidChars(string input)
+        {
+            return ExitCode.OK;
         }
 
         private bool FoundInvalidFileNameChar(string file)

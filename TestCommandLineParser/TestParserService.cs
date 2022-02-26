@@ -1,4 +1,4 @@
-﻿using System;
+﻿using CommandLineParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace TestCommandLineParser
@@ -16,7 +16,7 @@ namespace TestCommandLineParser
 
             var input = "delsigfromvba -f \"C:\\Users\\sasc\\Desktop\\ICAD_Cbl_material_DRIVE_GAA0014631_FAG.xlsm\"";
 
-            Assert.AreEqual(0, parserService.ParseInput(input));
+            Assert.AreEqual(ExitCode.Error, parserService.ParseInput(input));
         }
     }
 }
