@@ -261,6 +261,7 @@ namespace CommandLineParser
                 {
                     file = arguments[i];
                     this.FoundInvalidFileNameChar(arguments[i]); //Parser abbrechen und Ausgabe auf Konsole und ins Log mit illegalem zeichen!
+                    var test = this.IsValidFilename(arguments[i]);
                 }
             }
 
@@ -271,6 +272,8 @@ namespace CommandLineParser
 
         private ExitCode CheckInputForInvalidChars(string input)
         {
+            //Ganzer input string nach ungültigen zeichen durchsuchen.
+
             return ExitCode.OK;
         }
 
@@ -294,6 +297,27 @@ namespace CommandLineParser
             }
 
             return invalidFileNameChar;
+        }
+
+        private ValidFilenameDto IsValidFilename(string testName)
+        {
+            Regex containsABadCharacter = new Regex("["
+                  + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]");
+
+            if (containsABadCharacter.IsMatch(testName))
+            {
+                return new ValidFilenameDto()
+                {
+                    Valid = false,
+                    IllegalString = containsABadCharacter.Match(testName).ToString()
+                };
+            };
+
+            return new ValidFilenameDto()
+            {
+                Valid = true,
+                IllegalString = ""
+            };
         }
     }
 }
