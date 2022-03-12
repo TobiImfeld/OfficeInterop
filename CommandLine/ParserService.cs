@@ -29,18 +29,16 @@ namespace CommandLineParser
 
         public ExitCode ParseInput(string input)
         {
-            ExitCode exitCode = ExitCode.OK;
+            var actualCommand = this.SplitInputStringIntoArgumentsArray(input);
 
-            exitCode = this.CheckInputForInvalidChars(input);
-
-            if(exitCode == ExitCode.OK)
+            if (actualCommand.ValidFileName.Valid)
             {
-                var args = this.SplitInputStringIntoArgumentsArray(input);
-                return this.ParseInputArguments(args);
+                return this.ParseInputArguments(actualCommand.Arguments);
             }
             else
             {
-                return exitCode;
+                this.PrintInvalidFileName(actualCommand);
+                return ExitCode.Error;
             }
         }
 
@@ -239,19 +237,19 @@ namespace CommandLineParser
             return ExitCode.Error;
         }
 
-        private string[] SplitInputStringIntoArgumentsArray(string input)
+        private ActualCommandDto SplitInputStringIntoArgumentsArray(string input)
         {
             string optionsAsDelimiterPattern = @"(\-[a-z])";
             string removeWhiteSpaceAtStartOrEndPattern = @"^\s+|\s+$";
             string empty = string.Empty;
-            string file;
 
             string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
             string[] arguments = new string[substrings.Length];
 
+            var valid = new ValidFilenameDto();
+
             for(int i = 0; i < substrings.Length; i++)
             {
-                var removedDoubleQuotes = substrings[i].Trim('"');
                 arguments[i] = Regex.Replace(substrings[i], removeWhiteSpaceAtStartOrEndPattern, empty);
             }
 
@@ -259,44 +257,15 @@ namespace CommandLineParser
             {
                 if(Regex.IsMatch(arguments[i], ":"))
                 {
-                    file = arguments[i];
-                    this.FoundInvalidFileNameChar(arguments[i]); //Parser abbrechen und Ausgabe auf Konsole und ins Log mit illegalem zeichen!
-                    var test = this.IsValidFilename(arguments[i]);
+                    valid = this.IsValidFilename(arguments[i]);
                 }
             }
 
-
-            return arguments;
-        }
-
-
-        private ExitCode CheckInputForInvalidChars(string input)
-        {
-            //Ganzer input string nach ungültigen zeichen durchsuchen.
-
-            return ExitCode.OK;
-        }
-
-        private bool FoundInvalidFileNameChar(string file)
-        {
-            var invalidFileNameChar = false;
-            var invalidChars = Path.GetInvalidFileNameChars();
-
-            foreach(var chr in file)
+            return new ActualCommandDto
             {
-                foreach(var invChr in invalidChars)
-                {
-                    if(Regex.IsMatch(chr.ToString(), invChr.ToString()))
-                    {
-                        this.logger.Debug("Foud illegal char in file name: {0}", chr.ToString());
-                        Console.WriteLine("Foud illegal char in file name: {0}", chr.ToString());
-                        invalidFileNameChar = true;
-                        return invalidFileNameChar;
-                    }
-                }  
-            }
-
-            return invalidFileNameChar;
+                Arguments = arguments,
+                ValidFileName = valid
+            };
         }
 
         private ValidFilenameDto IsValidFilename(string testName)
@@ -308,6 +277,7 @@ namespace CommandLineParser
             {
                 return new ValidFilenameDto()
                 {
+                    FileName = testName,
                     Valid = false,
                     IllegalString = containsABadCharacter.Match(testName).ToString()
                 };
@@ -315,9 +285,16 @@ namespace CommandLineParser
 
             return new ValidFilenameDto()
             {
+                FileName = testName,
                 Valid = true,
                 IllegalString = ""
             };
+        }
+
+        private void PrintInvalidFileName(ActualCommandDto actualCommand)
+        {
+            this.logger.Debug($"Foud illegal char {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
+            Console.WriteLine($"Foud illegal char {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
         }
     }
 }
