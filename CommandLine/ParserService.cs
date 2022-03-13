@@ -241,6 +241,7 @@ namespace CommandLineParser
         {
             string optionsAsDelimiterPattern = @"(\-[a-z])";
             string removeWhiteSpaceAtStartOrEndPattern = @"^\s+|\s+$";
+            string searchForDiskDriveLetter = @"[A-Z]:\\";
             string empty = string.Empty;
 
             string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
@@ -255,7 +256,7 @@ namespace CommandLineParser
 
             for(int i = 0; i< arguments.Length; i++)
             {
-                if(Regex.IsMatch(arguments[i], ":"))
+                if(Regex.IsMatch(arguments[i], searchForDiskDriveLetter))
                 {
                     valid = this.IsValidFilename(arguments[i]);
                 }
