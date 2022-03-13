@@ -293,8 +293,8 @@ namespace CommandLineParser
 
         private void PrintInvalidFileName(ActualCommandDto actualCommand)
         {
-            this.logger.Debug($"Foud illegal char {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
-            Console.WriteLine($"Foud illegal char {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
+            this.logger.Debug($"Foud illegal character: {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
+            Console.WriteLine($"Foud illegal character: {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
         }
     }
 }
