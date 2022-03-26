@@ -9,6 +9,26 @@ namespace TestCommandLineParser
         private IParserService parserService;
 
         [TestMethod]
+        public void ParseInput_SetPathToFiles()
+        {
+            this.BeforeTest();
+
+            var input = "path -p C:\\Temp";
+
+            Assert.AreEqual(ExitCode.OK, parserService.ParseInput(input));
+        }
+
+        [TestMethod]
+        public void ParseInput_SetCertificateName()
+        {
+            this.BeforeTest();
+
+            var input = "cert -c CertificateName";
+
+            Assert.AreEqual(ExitCode.OK, parserService.ParseInput(input));
+        }
+
+        [TestMethod]
         public void IllegalCharacterInPath_OneCommandTwoOptionsWithFileAndCertificateName()
         {
             this.BeforeTest();
