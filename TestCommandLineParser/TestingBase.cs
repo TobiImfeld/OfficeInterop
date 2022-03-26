@@ -2,6 +2,7 @@
 using ExcelServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace TestCommandLineParser
 {
@@ -9,18 +10,23 @@ namespace TestCommandLineParser
     {
         private ServiceProvider serviceProvider;
 
-        public TestingBase InitServices()
+        public TestingBase Init()
         {
+            var certificateStoreServiceMock = Substitute.For<ICertificateStoreService>();
+            var excelServiceMock = Substitute.For<IExcelService>();
+            var fileServiceMock = Substitute.For<IFileService>();
+            var vbaExcelServiceMock = Substitute.For<IExcelVbaService>();
+
             this.serviceProvider = new ServiceCollection()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .AddTransient<ICertificateStoreService, CertificateStoreService>() //service mocken! kein echter zugriff auf certificate store!
-                .AddTransient<IExcelService, ExcelService>()
-                .AddTransient<IParserService, ParserService>()
-                .AddTransient<IFileService, FileService>()
-                .AddTransient<IExcelVbaService, ExcelVbaService>()
+                .AddSingleton<IParserService, ParserService>()
+                .AddSingleton(certificateStoreServiceMock)
+                .AddSingleton(excelServiceMock)
+                .AddSingleton(fileServiceMock)
+                .AddSingleton(vbaExcelServiceMock)
                 .BuildServiceProvider();
 
-            return this;       
+            return this;
         }
 
         public IParserService GetParserService()
