@@ -31,7 +31,7 @@ namespace CommandLineParser
         {
             var actualCommand = this.SplitInputStringIntoArgumentsArray(input);
 
-            if (actualCommand.ValidFileName.Valid)
+            if (actualCommand.ValidFileName.Valid || actualCommand.ValidCommand)
             {
                 return this.ParseInputArguments(actualCommand.Arguments);
             }
@@ -265,7 +265,8 @@ namespace CommandLineParser
             return new ActualCommandDto
             {
                 Arguments = arguments,
-                ValidFileName = valid
+                ValidFileName = valid,
+                ValidCommand = arguments.Length > 0
             };
         }
 

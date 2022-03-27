@@ -22,6 +22,7 @@
     public class ActualCommandDto
     {
         public string[] Arguments { get; set; }
-        public ValidFilenameDto ValidFileName {get;set;}
+        public ValidFilenameDto ValidFileName { get; set; }
+        public bool ValidCommand { get; set; }
     }
 }
