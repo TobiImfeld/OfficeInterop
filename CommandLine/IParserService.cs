@@ -12,7 +12,7 @@
         ExitCode ParseInput(string input);
     }
 
-    public class ValidFilenameDto
+    public class ValidFileNameDto
     {
         public string FileName { get; set; }
         public string IllegalString { get; set; }
@@ -22,7 +22,7 @@
     public class ActualCommandDto
     {
         public string[] Arguments { get; set; }
-        public ValidFilenameDto ValidFileName { get; set; }
-        public bool ValidCommand { get; set; }
+        public ValidFileNameDto FileName { get; set; }
+        public bool NoFileName { get; set; }
     }
 }

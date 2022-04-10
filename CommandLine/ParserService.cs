@@ -31,7 +31,12 @@ namespace CommandLineParser
         {
             var actualCommand = this.SplitInputStringIntoArgumentsArray(input);
 
-            if (actualCommand.ValidFileName.Valid || actualCommand.ValidCommand)
+            if(actualCommand.NoFileName)
+            {
+                return this.ParseInputArguments(actualCommand.Arguments);
+            }
+
+            if (actualCommand.FileName.Valid)
             {
                 return this.ParseInputArguments(actualCommand.Arguments);
             }
@@ -247,7 +252,7 @@ namespace CommandLineParser
             string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
             string[] arguments = new string[substrings.Length];
 
-            var valid = new ValidFilenameDto();
+            var fileName = new ValidFileNameDto();
 
             for(int i = 0; i < substrings.Length; i++)
             {
@@ -258,36 +263,36 @@ namespace CommandLineParser
             {
                 if(Regex.IsMatch(arguments[i], searchForDiskDriveLetter))
                 {
-                    valid = this.IsValidFilename(arguments[i]);
+                    fileName = this.IsFileNameValid(arguments[i]);
                 }
             }
 
             return new ActualCommandDto
             {
                 Arguments = arguments,
-                ValidFileName = valid,
-                ValidCommand = arguments.Length > 0
+                FileName = fileName,
+                NoFileName = fileName == null ? false : true,
             };
         }
 
-        private ValidFilenameDto IsValidFilename(string testName)
+        private ValidFileNameDto IsFileNameValid(string fileName)
         {
             Regex containsABadCharacter = new Regex("["
                   + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]");
 
-            if (containsABadCharacter.IsMatch(testName))
+            if (containsABadCharacter.IsMatch(fileName))
             {
-                return new ValidFilenameDto()
+                return new ValidFileNameDto()
                 {
-                    FileName = testName,
+                    FileName = fileName,
                     Valid = false,
-                    IllegalString = containsABadCharacter.Match(testName).ToString()
+                    IllegalString = containsABadCharacter.Match(fileName).ToString()
                 };
             };
 
-            return new ValidFilenameDto()
+            return new ValidFileNameDto()
             {
-                FileName = testName,
+                FileName = fileName,
                 Valid = true,
                 IllegalString = ""
             };
@@ -295,8 +300,8 @@ namespace CommandLineParser
 
         private void PrintInvalidFileName(ActualCommandDto actualCommand)
         {
-            this.logger.Debug($"Foud illegal character: {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
-            Console.WriteLine($"Foud illegal character: {actualCommand.ValidFileName.IllegalString} in file name: {actualCommand.ValidFileName.FileName}");
+            this.logger.Debug($"Foud illegal character: {actualCommand.FileName.IllegalString} in file name: {actualCommand.FileName.FileName}");
+            Console.WriteLine($"Foud illegal character: {actualCommand.FileName.IllegalString} in file name: {actualCommand.FileName.FileName}");
         }
     }
 }
