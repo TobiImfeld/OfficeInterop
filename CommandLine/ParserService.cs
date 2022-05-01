@@ -252,7 +252,7 @@ namespace CommandLineParser
             string[] substrings = Regex.Split(input, optionsAsDelimiterPattern);
             string[] arguments = new string[substrings.Length];
 
-            var fileName = new ValidFileNameDto();
+            var validFileName = new ValidFileNameDto();
 
             for(int i = 0; i < substrings.Length; i++)
             {
@@ -263,15 +263,15 @@ namespace CommandLineParser
             {
                 if(Regex.IsMatch(arguments[i], searchForDiskDriveLetter))
                 {
-                    fileName = this.IsFileNameValid(arguments[i]);
+                    validFileName = this.IsFileNameValid(arguments[i]);
                 }
             }
 
             return new ActualCommandDto
             {
                 Arguments = arguments,
-                FileName = fileName,
-                NoFileName = fileName == null ? false : true,
+                FileName = validFileName,
+                NoFileName = validFileName.FileName == null ? true : false,
             };
         }
 
