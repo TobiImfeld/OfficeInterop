@@ -243,6 +243,11 @@ namespace ExcelServices
 
         private VbaProjectStates IsVbaProjectExisting(ExcelWorkbook workbook, string fileName)
         {
+            const string schemaRelVba = "http://schemas.microsoft.com/office/2006/relationships/vbaProject";
+            const string PartUri = @"/xl/vbaProject.bin";
+
+            workbook.
+
             try
             {
                 var codeModule = workbook.CodeModule;
