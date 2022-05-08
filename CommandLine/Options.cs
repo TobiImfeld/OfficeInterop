@@ -23,7 +23,7 @@ namespace CommandLineParser
     public class StopOptions
     {
         [Option('s', "Stop", Required = false)]
-        public int Stop { get; set; }
+        public ExitCode Stop { get; set; }
     }
 
     //example command: "delSig -p C:\Temp "
