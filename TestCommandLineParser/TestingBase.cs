@@ -3,12 +3,13 @@ using ExcelServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using System;
 
 namespace TestCommandLineParser
 {
     public class TestingBase
     {
-        private ServiceProvider serviceProvider;
+        private IServiceProvider serviceProvider;
 
         public TestingBase Init()
         {

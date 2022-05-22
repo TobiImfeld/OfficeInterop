@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using VbaServices;
 
 namespace ExcelServices
 {
@@ -12,15 +13,18 @@ namespace ExcelServices
         private readonly ILogger logger;
         private readonly ICertificateStoreService certificateStoreService;
         private readonly IFileService fileService;
+        private readonly IVbaService vbaService;
 
         public ExcelVbaService(
             ILoggerFactory loggerFactory,
             ICertificateStoreService certificateStoreService,
-            IFileService fileService)
+            IFileService fileService,
+            IVbaService vbaService)
         {
             this.logger = loggerFactory.Create<ExcelVbaService>();
             this.certificateStoreService = certificateStoreService;
             this.fileService = fileService;
+            this.vbaService = vbaService;
         }
 
         public void SignAllVbaExcelFiles(string targetDirectory, string certName)
@@ -242,6 +246,8 @@ namespace ExcelServices
 
         private VbaProjectStates IsVbaProjectExisting(ExcelWorkbook workbook, string fileName)
         {
+            this.vbaService.GetVbaProject(fileName);
+
             try
             {
                 var codeModule = workbook.CodeModule;

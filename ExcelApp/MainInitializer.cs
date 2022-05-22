@@ -2,6 +2,7 @@
 using ExcelServices;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using VbaServices;
 
 namespace ExcelApp
 {
@@ -50,6 +51,7 @@ namespace ExcelApp
                 .AddTransient<IParserService, ParserService>()
                 .AddTransient<IFileService, FileService>()
                 .AddTransient<IExcelVbaService, ExcelVbaService>()
+                .AddTransient<IVbaService, VbaService>()
                 .BuildServiceProvider();
 
             this.loggerFactory = serviceProvider.GetService<ILoggerFactory>();

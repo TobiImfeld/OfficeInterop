@@ -56,6 +56,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Security" />
     <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Xml.Linq" />
@@ -82,6 +83,10 @@
     <ProjectReference Include="..\Logging\Logging.csproj">
       <Project>{EBFB9D66-7CCA-486B-8BAE-899D849DBDA9}</Project>
       <Name>Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VbaService\VbaServices.csproj">
+      <Project>{7AF891ED-A680-4EFB-A08B-E863A657560A}</Project>
+      <Name>VbaServices</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
