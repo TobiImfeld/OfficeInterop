@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Packaging;
 using System.Linq;
 using System.Text;
@@ -9,9 +10,32 @@ namespace VbaServices
     public class VbaService : IVbaService
     {
         private eSyskind SystemKind { get; set; }
-        private int CodePage { get; set; }
+        /// <summary>
+        /// Codepage for encoding. Default is current regional setting.
+        /// </summary>
         private int Lcid { get; set; }
+        private int CodePage { get; set; }
         private string Name { get; set; }
+        private string Description { get; set; }
+        /// <summary>
+        /// A helpfile
+        /// </summary>
+        private string HelpFile1 { get; set; }
+        /// <summary>
+        /// Secondary helpfile
+        /// </summary>
+        private string HelpFile2 { get; set; }
+        /// <summary>
+        /// Context if refering the helpfile
+        /// </summary>
+        private int HelpContextID { get; set; }
+        /// <summary>
+        /// Conditional compilation constants
+        /// </summary>
+        private string Constants { get; set; }
+        internal int LibFlags { get; set; }
+        internal int MajorVersion { get; set; }
+        internal int MinorVersion { get; set; }
 
         public void GetVbaProject(string file)
         {
@@ -45,8 +69,35 @@ namespace VbaServices
 
             bool terminate = false;
             br.BaseStream.Position = 0;
-            while(br.BaseStream.Position < br.BaseStream.Length && terminate == false)
+            var currentPosition = 0;
+
+            for (int i = 0; i < dir.Length; i++)
             {
+                if (0x003 == dir[i])
+                {
+                    var codePageByteOne = dir[i + 5];
+                    var codePageByteTwo = dir[i + 6];
+
+                    UInt16 combined = (ushort)(codePageByteOne << 8 | codePageByteTwo);
+                    break;
+                }
+            }
+
+            /// New try: Search in the dir[] for the id's and if there are found, then use the definitions from documentation
+            /// to get the corresponding values, by bytes.
+            var syskind = this.search(dir, dir.Length, 0x001);
+            var lcid = this.search(dir, dir.Length, 0x002);
+            var codePageId = this.search(dir, dir.Length, 0x003);
+
+
+            while (br.BaseStream.Position < br.BaseStream.Length && terminate == false)
+            {
+                ///
+                /// Problem: the br.BaseStream.Position, don't get the byte at pos = 40 in the dir-array
+                /// to read the codepage correct. The basic problem is to read the id's from the correct positon in the dir-array.
+                /// I can read the correct codepage if I set the br.BaseStream.Position = 40;
+                /// br.BaseStream.Position = 40;
+                /// siehe: https://jonskeet.uk/csharp/readbinary.html
                 ushort id = br.ReadUInt16();
                 uint size = br.ReadUInt32();
                 switch (id)
@@ -63,22 +114,112 @@ namespace VbaServices
                     case 0x04:
                         Name = this.GetString(br, size);
                         break;
+                    case 0x05:
+                        Description = GetUnicodeString(br, size);
+                        break;
+                    case 0x06:
+                        HelpFile1 = GetString(br, size);
+                        break;
+                    case 0x3D:
+                        HelpFile2 = GetString(br, size);
+                        break;
+                    case 0x07:
+                        HelpContextID = (int)br.ReadUInt32();
+                        break;
+                    case 0x08:
+                        LibFlags = (int)br.ReadUInt32();
+                        break;
+                    case 0x09:
+                        MajorVersion = (int)br.ReadUInt32();
+                        MinorVersion = (int)br.ReadUInt16();
+                        break;
+                    case 0x0C:
+                        Constants = GetUnicodeString(br, size);
+                        break;
+                    case 0x2B:      //Modul Terminator
+                        break;
                     case 0x10:
                         terminate = true;
                         break;
+                    default:
+                        break;
                 }
+
             }
 
         }
 
+        public static void ReadWholeArray(Stream stream, byte[] data)
+        {
+            int offset = 0;
+            int remaining = data.Length;
+            while (remaining > 0)
+            {
+                int read = stream.Read(data, offset, remaining);
+                if (read <= 0)
+                    throw new EndOfStreamException
+                        (String.Format("End of stream reached with {0} bytes left to read", remaining));
+                remaining -= read;
+                offset += read;
+            }
+        }
+
+        public ResultDto search(byte[] arr, int n, byte x)
+        {
+            // 1st comparison
+            if (arr[n - 1] == x)
+                return new ResultDto()
+                {
+                    Message = "Found",
+                    Value = arr[n - 1],
+                };
+
+            byte backup = arr[n - 1];
+            arr[n - 1] = x;
+
+            // no termination condition and thus
+            // no comparison
+            for (int i = 0; ; i++)
+            {
+
+                // this would be executed at-most n times
+                // and therefore at-most n comparisons
+                if (arr[i] == x)
+                {
+
+                    // replace arr[n-1] with its actual element
+                    // as in original 'arr[]'
+                    arr[n - 1] = backup;
+
+                    // if 'x' is found before the '(n-1)th'
+                    // index, then it is present in the array
+                    // final comparison
+                    if (i < n - 1)
+                        return new ResultDto()
+                        {
+                            Message = "Found",
+                            Value = arr[i],
+                        };
+
+                    // else not present in the array
+                    return new ResultDto()
+                    {
+                        Message = "Not Found"
+                    };
+                }
+            }
+        }
+
+
+
         private string GetString(BinaryReader br, uint size)
         {
-            int codePage = 1250;
+            //int codePage = 1250;
 
-            if(this.CodePage == 0)
-            {
-                this.CodePage = codePage;
-            }
+            //if(this.CodePage == 0)
+            //{
+            //    this.CodePage = codePage;
+            //}
 
             return GetString(br, size, Encoding.GetEncoding(this.CodePage));
         }
@@ -96,155 +237,18 @@ namespace VbaServices
             }
         }
 
-        //    private void ReadDirStream()
-        //    {
-        //        byte[] dir = VBACompression.DecompressPart(Document.Storage.SubStorage["VBA"].DataStreams["dir"]);
-        //        MemoryStream ms = new MemoryStream(dir);
-        //        BinaryReader br = new BinaryReader(ms);
-        //        ExcelVbaReference currentRef = null;
-        //        string referenceName = "";
-        //        ExcelVBAModule currentModule = null;
-        //        bool terminate = false;
-        //        while (br.BaseStream.Position < br.BaseStream.Length && terminate == false)
-        //        {
-        //            ushort id = br.ReadUInt16();
-        //            uint size = br.ReadUInt32();
-        //            switch (id)
-        //            {
-        //                case 0x01:
-        //                    SystemKind = (eSyskind)br.ReadUInt32();
-        //                    break;
-        //                case 0x02:
-        //                    Lcid = (int)br.ReadUInt32();
-        //                    break;
-        //                case 0x03:
-        //                    CodePage = (int)br.ReadUInt16();
-        //                    break;
-        //                case 0x04:
-        //                    Name = GetString(br, size);
-        //                    break;
-        //                case 0x05:
-        //                    Description = GetUnicodeString(br, size);
-        //                    break;
-        //                case 0x06:
-        //                    HelpFile1 = GetString(br, size);
-        //                    break;
-        //                case 0x3D:
-        //                    HelpFile2 = GetString(br, size);
-        //                    break;
-        //                case 0x07:
-        //                    HelpContextID = (int)br.ReadUInt32();
-        //                    break;
-        //                case 0x08:
-        //                    LibFlags = (int)br.ReadUInt32();
-        //                    break;
-        //                case 0x09:
-        //                    MajorVersion = (int)br.ReadUInt32();
-        //                    MinorVersion = (int)br.ReadUInt16();
-        //                    break;
-        //                case 0x0C:
-        //                    Constants = GetUnicodeString(br, size);
-        //                    break;
-        //                case 0x0D:
-        //                    uint sizeLibID = br.ReadUInt32();
-        //                    var regRef = new ExcelVbaReference();
-        //                    regRef.Name = referenceName;
-        //                    regRef.ReferenceRecordID = id;
-        //                    regRef.Libid = GetString(br, sizeLibID);
-        //                    uint reserved1 = br.ReadUInt32();
-        //                    ushort reserved2 = br.ReadUInt16();
-        //                    References.Add(regRef);
-        //                    break;
-        //                case 0x0E:
-        //                    var projRef = new ExcelVbaReferenceProject();
-        //                    projRef.ReferenceRecordID = id;
-        //                    projRef.Name = referenceName;
-        //                    sizeLibID = br.ReadUInt32();
-        //                    projRef.Libid = GetString(br, sizeLibID);
-        //                    sizeLibID = br.ReadUInt32();
-        //                    projRef.LibIdRelative = GetString(br, sizeLibID);
-        //                    projRef.MajorVersion = br.ReadUInt32();
-        //                    projRef.MinorVersion = br.ReadUInt16();
-        //                    References.Add(projRef);
-        //                    break;
-        //                case 0x0F:
-        //                    ushort modualCount = br.ReadUInt16();
-        //                    break;
-        //                case 0x13:
-        //                    ushort cookie = br.ReadUInt16();
-        //                    break;
-        //                case 0x14:
-        //                    LcidInvoke = (int)br.ReadUInt32();
-        //                    break;
-        //                case 0x16:
-        //                    referenceName = GetUnicodeString(br, size);
-        //                    break;
-        //                case 0x19:
-        //                    currentModule = new ExcelVBAModule();
-        //                    currentModule.Name = GetUnicodeString(br, size);
-        //                    Modules.Add(currentModule);
-        //                    break;
-        //                case 0x1A:
-        //                    currentModule.streamName = GetUnicodeString(br, size);
-        //                    break;
-        //                case 0x1C:
-        //                    currentModule.Description = GetUnicodeString(br, size);
-        //                    break;
-        //                case 0x1E:
-        //                    currentModule.HelpContext = (int)br.ReadUInt32();
-        //                    break;
-        //                case 0x21:
-        //                case 0x22:
-        //                    break;
-        //                case 0x2B:      //Modul Terminator
-        //                    break;
-        //                case 0x2C:
-        //                    currentModule.Cookie = br.ReadUInt16();
-        //                    break;
-        //                case 0x31:
-        //                    currentModule.ModuleOffset = br.ReadUInt32();
-        //                    break;
-        //                case 0x10:
-        //                    terminate = true;
-        //                    break;
-        //                case 0x30:
-        //                    var extRef = (ExcelVbaReferenceControl)currentRef;
-        //                    var sizeExt = br.ReadUInt32();
-        //                    extRef.LibIdExternal = GetString(br, sizeExt);
+        private string GetUnicodeString(BinaryReader br, uint size)
+        {
+            string s = GetString(br, size);
+            uint sizeUC = br.ReadUInt32();
+            string sUC = GetString(br, sizeUC, Encoding.Unicode);
+            return sUC.Length == 0 ? s : sUC;
+        }
+    }
 
-        //                    uint reserved4 = br.ReadUInt32();
-        //                    ushort reserved5 = br.ReadUInt16();
-        //                    extRef.OriginalTypeLib = new Guid(br.ReadBytes(16));
-        //                    extRef.Cookie = br.ReadUInt32();
-        //                    break;
-        //                case 0x33:
-        //                    currentRef = new ExcelVbaReferenceControl();
-        //                    currentRef.ReferenceRecordID = id;
-        //                    currentRef.Name = referenceName;
-        //                    currentRef.Libid = GetString(br, size);
-        //                    References.Add(currentRef);
-        //                    break;
-        //                case 0x2F:
-        //                    var contrRef = (ExcelVbaReferenceControl)currentRef;
-        //                    contrRef.ReferenceRecordID = id;
-
-        //                    var sizeTwiddled = br.ReadUInt32();
-        //                    contrRef.LibIdTwiddled = GetString(br, sizeTwiddled);
-        //                    var r1 = br.ReadUInt32();
-        //                    var r2 = br.ReadUInt16();
-
-        //                    break;
-        //                case 0x25:
-        //                    currentModule.ReadOnly = true;
-        //                    break;
-        //                case 0x28:
-        //                    currentModule.Private = true;
-        //                    break;
-        //                default:
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
+    public class ResultDto
+    {
+        public string Message { get; set; }
+        public byte Value { get; set; }
     }
 }
